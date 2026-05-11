@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react'
 import { Search, X, ArrowRight, Calculator } from 'lucide-react'
 import { motion } from 'framer-motion'
+import toast from 'react-hot-toast'
 import legalDraftTypes from '../data/legalDraftTypes'
+import { submitToGoogleSheets } from '../utils/googleSheets'
 
 const PRICE_PER_PAGE = 199
 const FILING_PRICE = 2499
@@ -35,11 +37,13 @@ export default function PriceCalculator() {
     setShowDropdown(false)
   }
 
-  const handleRequest = () => {
-    const number = import.meta.env.VITE_WHATSAPP_NUMBER || '919876543210'
-    const svcLabel = serviceType === 'drafting' ? 'Drafting Only' : serviceType === 'filing' ? 'Filing Only' : 'Drafting & Filing'
-    const msg = `Hi Professionall, I need help with ${selected?.label || 'a legal draft'}.\nService: ${svcLabel}. Pages: ${pages}. Estimated: ₹${total.toLocaleString()}.\nPlease contact me.`
-    window.open(`https://wa.me/${number}?text=${encodeURIComponent(msg)}`, '_blank')
+  const handleRequest = async () => {
+    await submitToGoogleSheets({
+      phone: '',
+      service: `${selected?.label || 'Legal Draft'} - ${serviceType === 'drafting' ? 'Drafting Only' : serviceType === 'filing' ? 'Filing Only' : 'Drafting & Filing'}`,
+      message: `Document: ${selected?.label || 'Not selected'}. Pages: ${pages}. Estimated: ₹${total.toLocaleString()}`
+    })
+    toast.success('Request submitted! We will contact you soon.')
   }
 
   return (

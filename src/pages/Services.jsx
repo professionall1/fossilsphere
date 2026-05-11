@@ -18,13 +18,9 @@ export default function Services() {
     e.preventDefault()
     if (!form.phone) return toast.error('Please enter your phone number')
     setLoading(true)
-    await submitToGoogleSheets({ name: '', phone: form.phone, message: form.service })
+    await submitToGoogleSheets({ phone: form.phone, service: form.service, message: form.service })
     setLoading(false)
-    toast.success('Request submitted! Redirecting to WhatsApp...')
-
-    const number = import.meta.env.VITE_WHATSAPP_NUMBER || '919876543210'
-    const msg = `Hi Professionall!\nPhone: ${form.phone}\nService Needed: ${form.service}`
-    window.open(`https://wa.me/${number}?text=${encodeURIComponent(msg)}`, '_blank')
+    toast.success('Request submitted! We will contact you soon.')
     setForm({ phone: '', service: '' })
   }
 
@@ -35,7 +31,7 @@ export default function Services() {
         <div className="absolute inset-0 hero-gradient-overlay" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>
-            <h1 className="font-heading font-semibold text-4xl sm:text-5xl text-primary mb-3">
+            <h1 className="font-bold text-4xl sm:text-5xl text-primary mb-3">
               Our <span className="text-accent">Services</span>
             </h1>
             <p className="text-textsecondary max-w-lg mx-auto">
@@ -50,59 +46,47 @@ export default function Services() {
         <div className="max-w-7xl mx-auto px-4">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-10">
             <span className="text-accent text-sm font-semibold uppercase tracking-wider">Pricing Tool</span>
-            <h2 className="font-heading font-semibold text-3xl text-primary mt-2 mb-3">Calculate Your Cost</h2>
+            <h2 className="font-bold text-3xl text-primary mt-2 mb-3">Calculate Your Cost</h2>
             <p className="text-textsecondary max-w-md mx-auto">Select your document type, choose a service, and get an instant price estimate.</p>
           </motion.div>
           <PriceCalculator />
         </div>
       </section>
 
-      {/* Service Cards - Drafting, Filing, Numbering, Lawyer Matching */}
+      {/* Service Cards */}
       <section className="py-16 bg-bglight">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
             <span className="text-accent text-sm font-semibold uppercase tracking-wider">Services</span>
-            <h2 className="font-heading font-semibold text-3xl text-primary mt-2">Drafting, Filing, Numbering & Lawyer Matching</h2>
+            <h2 className="font-bold text-3xl text-primary mt-2">Drafting, Filing, Numbering & Lawyer Matching</h2>
           </motion.div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
-                icon: FileText,
-                title: 'Legal Drafting',
-                price: '₹199/page',
+                icon: FileText, title: 'Legal Drafting', price: '₹199/page',
                 desc: 'Professional drafting of all court petitions, agreements, deeds & notices.',
                 items: ['Court Petitions', 'Agreements', 'Property Deeds', 'Legal Notices']
               },
               {
-                icon: FolderOpen,
-                title: 'Court Filing',
-                price: '₹2,499 flat',
+                icon: FolderOpen, title: 'Court Filing', price: '₹2,499 flat',
                 desc: 'Complete filing in any court across India with document verification.',
                 items: ['District Courts', 'High Courts', 'Consumer Forums', 'Tribunals']
               },
               {
-                icon: Hash,
-                title: 'Numbering',
-                price: 'Included',
+                icon: Hash, title: 'Numbering', price: 'Included',
                 desc: 'Proper page numbering, indexing, and formatting as per court requirements.',
                 items: ['Page Numbering', 'Court Indexing', 'Proper Formatting', 'Certified Copies']
               },
               {
-                icon: Users,
-                title: 'Lawyer Matching',
-                price: 'Free Consult',
+                icon: Users, title: 'Lawyer Matching', price: 'Free Consult',
                 desc: 'Get connected with verified specialists for your specific case type.',
                 items: ['Civil & Criminal', 'Family Law', 'Corporate', 'Property']
               },
             ].map((card, i) => (
               <motion.div
                 key={card.title}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                custom={i}
-                variants={fadeUp}
+                initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i} variants={fadeUp}
                 className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg hover:border-accent/15 transition-all"
               >
                 <div className="flex items-center justify-between mb-4">
@@ -111,13 +95,12 @@ export default function Services() {
                   </div>
                   <span className="text-accent font-bold text-xs bg-accent/5 px-2.5 py-1 rounded-full">{card.price}</span>
                 </div>
-                <h3 className="font-heading font-semibold text-lg text-primary mb-2">{card.title}</h3>
+                <h3 className="font-bold text-lg text-primary mb-2">{card.title}</h3>
                 <p className="text-textsecondary text-sm mb-4 leading-relaxed">{card.desc}</p>
                 <ul className="space-y-2">
                   {card.items.map(item => (
                     <li key={item} className="flex items-center gap-2 text-sm text-textprimary">
-                      <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0" />
-                      {item}
+                      <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0" /> {item}
                     </li>
                   ))}
                 </ul>
@@ -127,12 +110,12 @@ export default function Services() {
         </div>
       </section>
 
-      {/* How It Works - with images */}
+      {/* How It Works */}
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
             <span className="text-accent text-sm font-semibold uppercase tracking-wider">Process</span>
-            <h2 className="font-heading font-semibold text-3xl text-primary mt-2">How It Works</h2>
+            <h2 className="font-bold text-3xl text-primary mt-2">How It Works</h2>
           </motion.div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -148,10 +131,10 @@ export default function Services() {
                   <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
                 </div>
                 <div className="p-5 text-center">
-                  <div className="w-8 h-8 bg-accent text-white font-heading font-bold rounded-full flex items-center justify-center mx-auto mb-2 text-xs">
+                  <div className="w-8 h-8 bg-accent text-white font-bold rounded-full flex items-center justify-center mx-auto mb-2 text-xs">
                     {item.step}
                   </div>
-                  <h4 className="font-heading font-semibold text-primary text-sm mb-1">{item.title}</h4>
+                  <h4 className="font-bold text-primary text-sm mb-1">{item.title}</h4>
                   <p className="text-textsecondary text-xs">{item.desc}</p>
                 </div>
               </motion.div>
@@ -160,18 +143,18 @@ export default function Services() {
         </div>
       </section>
 
-      {/* Contact Form - phone only */}
+      {/* Contact Form */}
       <section className="py-16 bg-bglight border-t border-gray-100">
         <div className="max-w-md mx-auto px-4">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
             <div className="text-center mb-8">
-              <h2 className="font-heading font-semibold text-2xl text-primary mb-2">Request a Service</h2>
-              <p className="text-textsecondary text-sm">Share your phone number and we'll connect on WhatsApp.</p>
+              <h2 className="font-bold text-2xl text-primary mb-2">Request a Service</h2>
+              <p className="text-textsecondary text-sm">Submit your details and we'll get back to you.</p>
             </div>
 
             <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
               <div>
-                <label className="text-sm font-medium text-textprimary mb-1.5 block">Phone Number</label>
+                <label className="text-sm font-bold text-textprimary mb-1.5 block">Phone Number**</label>
                 <input
                   type="tel"
                   placeholder="+91 98765 43210"
@@ -181,7 +164,7 @@ export default function Services() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-textprimary mb-1.5 block">Service Needed</label>
+                <label className="text-sm font-bold text-textprimary mb-1.5 block">Service Needed</label>
                 <textarea
                   placeholder="Describe what you need help with..."
                   value={form.service}

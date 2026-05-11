@@ -1,4 +1,4 @@
-import { Scale, Phone, Mail, MessageCircle, ArrowUpRight } from 'lucide-react'
+import { Scale, Phone, Mail } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function Footer() {
@@ -42,15 +42,6 @@ export default function Footer() {
               </a>
               <a href="mailto:hello@professionall.in" className="flex items-center gap-2.5 text-sm text-textsecondary hover:text-accent transition-colors">
                 <Mail className="w-4 h-4" /> hello@professionall.in
-              </a>
-              <a
-                href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '919876543210'}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2.5 text-sm text-textsecondary hover:text-green-600 transition-colors"
-              >
-                <MessageCircle className="w-4 h-4" /> WhatsApp Chat
-                <ArrowUpRight className="w-3 h-3" />
               </a>
             </div>
           </div>

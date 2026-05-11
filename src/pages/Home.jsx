@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FileText, Users, FolderOpen, ArrowRight, CheckCircle, Clock, MessageCircle } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { submitToGoogleSheets } from '../utils/googleSheets'
 
 function AnimatedNumber({ target, suffix = '+', duration = 2000 }) {
   const [count, setCount] = useState(0)
@@ -38,16 +40,24 @@ const fadeUp = {
 export default function Home() {
   const [phone, setPhone] = useState('')
   const [services, setServices] = useState([])
+  const [loading, setLoading] = useState(false)
 
   const toggleService = (s) => {
     setServices(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s])
   }
 
-  const handleGetStarted = () => {
-    if (!phone || phone.length < 10) return
-    const number = import.meta.env.VITE_WHATSAPP_NUMBER || '919876543210'
-    const msg = `Hi, I'd like legal help.\nPhone: +91 ${phone}\nService: ${services.join(', ') || 'Not specified'}`
-    window.open(`https://wa.me/${number}?text=${encodeURIComponent(msg)}`, '_blank')
+  const handleSubmit = async () => {
+    if (!phone || phone.length < 10) return toast.error('Please enter a valid phone number')
+    setLoading(true)
+    await submitToGoogleSheets({
+      phone: `+91 ${phone}`,
+      service: services.join(', ') || 'Not specified',
+      message: 'Home page inquiry'
+    })
+    setLoading(false)
+    toast.success('Request submitted successfully! We will contact you soon.')
+    setPhone('')
+    setServices([])
   }
 
   return (
@@ -61,9 +71,8 @@ export default function Home() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 w-full">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <motion.div initial="hidden" animate="visible" variants={fadeUp}>
-              <h1 className="font-heading font-bold text-4xl sm:text-5xl lg:text-6xl text-primary leading-[1.1] mb-5">
-                Drafting, Filing,<br />Numbering &<br />
-                <span className="text-accent">Legal Help</span>
+              <h1 className="font-bold text-4xl sm:text-5xl lg:text-6xl text-primary leading-[1.1] mb-5">
+                Drafting, Filing, Numbering and Legal Help
               </h1>
 
               <p className="text-textsecondary text-base mb-7 max-w-md leading-relaxed">
@@ -83,61 +92,44 @@ export default function Home() {
               transition={{ duration: 0.7, delay: 0.3 }}
               className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl border border-gray-100"
             >
-              <h3 className="font-heading font-semibold text-primary text-xl mb-1">Get Started Now</h3>
-              <p className="text-textsecondary text-sm mb-5">Tell us what you need — we'll connect you instantly</p>
+              <h3 className="font-bold text-primary text-xl mb-1">Get Started Now</h3>
+              <p className="text-textsecondary text-sm mb-5">Tell us what you need — we'll contact you shortly</p>
 
               <div className="mb-4">
-                <label className="text-textsecondary text-xs mb-1.5 block font-medium">Phone Number</label>
-                <div className="flex items-center gap-2">
-                  <span className="text-primary text-sm font-medium bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5">+91</span>
-                  <input
-                    type="tel"
-                    value={phone}
-                    onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                    placeholder="98765 43210"
-                    className="flex-1 bg-gray-50 border border-gray-200 rounded-lg px-4 py-2.5 text-primary placeholder-gray-400 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 text-sm"
-                  />
-                </div>
+                <label className="font-bold text-textprimary text-sm mb-1.5 block">Phone No**</label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  placeholder="Phone No"
+                  className="w-full bg-gray-100 border border-gray-200 rounded-lg px-4 py-3 text-primary placeholder-gray-400 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 text-sm"
+                />
               </div>
 
               <div className="mb-6">
-                <label className="text-textsecondary text-xs mb-2 block font-medium">What do you need?</label>
-                <div className="flex flex-col gap-2.5">
-                  {[
-                    { label: 'Drafting', desc: '₹199/page' },
-                    { label: 'Filing', desc: '₹2,499 flat' },
-                    { label: 'Drafting & Filing', desc: 'Best Value — Save More!' },
-                  ].map(s => (
-                    <label
-                      key={s.label}
-                      className={`flex items-center justify-between cursor-pointer rounded-lg px-4 py-3 border transition-all ${
-                        services.includes(s.label)
-                          ? 'bg-accent/5 border-accent/30 text-primary'
-                          : 'bg-gray-50 border-gray-200 text-textsecondary hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="checkbox"
-                          checked={services.includes(s.label)}
-                          onChange={() => toggleService(s.label)}
-                          className="w-4 h-4 rounded border-gray-300 text-accent focus:ring-accent"
-                        />
-                        <span className="text-sm font-medium">{s.label}</span>
-                      </div>
-                      <span className="text-xs text-textsecondary">{s.desc}</span>
+                <label className="font-bold text-textprimary text-sm mb-2 block">Multiple choice</label>
+                <div className="flex flex-col gap-3">
+                  {['Drafting', 'Filing', 'Drafting & Filing ( SAVE MORE )'].map(s => (
+                    <label key={s} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={services.includes(s)}
+                        onChange={() => toggleService(s)}
+                        className="w-4 h-4 border-2 border-gray-400 rounded text-accent focus:ring-accent"
+                      />
+                      <span className="text-sm text-textprimary">{s}</span>
                     </label>
                   ))}
                 </div>
               </div>
 
               <button
-                onClick={handleGetStarted}
-                className="w-full py-3.5 bg-accent text-white font-bold rounded-xl hover:bg-accent/90 transition-all active:scale-[0.98] text-sm shadow-lg shadow-accent/20"
+                onClick={handleSubmit}
+                disabled={loading}
+                className="w-full py-3.5 bg-[#3b82f6] text-white font-bold rounded-lg hover:bg-[#2563eb] transition-all active:scale-[0.98] text-sm disabled:opacity-50"
               >
-                Get Started on WhatsApp →
+                {loading ? 'Submitting...' : 'Submit'}
               </button>
-              <p className="text-textsecondary text-xs text-center mt-3">Free consultation • No spam • Instant reply</p>
             </motion.div>
           </div>
         </div>
@@ -161,7 +153,7 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
             >
-              <p className="text-accent font-heading font-bold text-2xl sm:text-3xl">
+              <p className="text-accent font-bold text-2xl sm:text-3xl">
                 <AnimatedNumber target={s.num} suffix={s.suffix} />
               </p>
               <p className="text-textsecondary text-xs mt-1">{s.label}</p>
@@ -175,9 +167,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-14">
             <span className="text-accent text-sm font-semibold uppercase tracking-wider">What We Offer</span>
-            <h2 className="font-heading font-semibold text-3xl sm:text-4xl text-primary mt-2">
-              Our Core Services
-            </h2>
+            <h2 className="font-bold text-3xl sm:text-4xl text-primary mt-2">Our Core Services</h2>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -218,7 +208,7 @@ export default function Home() {
                     <div className="w-9 h-9 bg-accent/10 rounded-lg flex items-center justify-center">
                       <card.icon className="w-5 h-5 text-accent" />
                     </div>
-                    <h3 className="font-heading font-semibold text-lg text-primary">{card.title}</h3>
+                    <h3 className="font-bold text-lg text-primary">{card.title}</h3>
                   </div>
                   <p className="text-textsecondary text-sm leading-relaxed mb-4">{card.desc}</p>
                   <Link to="/services" className="flex items-center gap-1 text-accent text-sm font-medium hover:gap-2 transition-all">
@@ -235,25 +225,13 @@ export default function Home() {
       <section className="py-16 bg-white border-t border-gray-100">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <h2 className="font-heading font-semibold text-3xl sm:text-4xl text-primary mb-4">
-              Ready to Get Started?
-            </h2>
+            <h2 className="font-bold text-3xl sm:text-4xl text-primary mb-4">Ready to Get Started?</h2>
             <p className="text-textsecondary mb-8 max-w-md mx-auto">
               Join 1000+ satisfied clients. Get your legal work done by experts — fast and affordable.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/services" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-accent text-white font-bold rounded-xl hover:bg-accent/90 transition-colors shadow-lg shadow-accent/15">
-                Explore Services <ArrowRight className="w-4 h-4" />
-              </Link>
-              <a
-                href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '919876543210'}?text=${encodeURIComponent('Hi Professionall, I need legal help!')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-green-500 text-white font-bold rounded-xl hover:bg-green-600 transition-colors"
-              >
-                <MessageCircle className="w-5 h-5" /> Chat on WhatsApp
-              </a>
-            </div>
+            <Link to="/services" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-accent text-white font-bold rounded-xl hover:bg-accent/90 transition-colors shadow-lg shadow-accent/15">
+              Explore Services <ArrowRight className="w-4 h-4" />
+            </Link>
           </motion.div>
         </div>
       </section>

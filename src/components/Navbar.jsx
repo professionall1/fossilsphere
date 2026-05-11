@@ -47,14 +47,6 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
-          <a
-            href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '919876543210'}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="ml-3 px-4 py-2 bg-accent text-white text-sm font-medium rounded-lg hover:bg-accent/90 transition-colors"
-          >
-            Get Help
-          </a>
         </div>
 
         <button onClick={() => setOpen(!open)} className="md:hidden text-primary p-2">
@@ -85,14 +77,6 @@ export default function Navbar() {
                   {l.label}
                 </Link>
               ))}
-              <a
-                href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_NUMBER || '919876543210'}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 px-4 py-3 bg-accent text-white text-sm font-medium rounded-lg text-center"
-              >
-                Get Help on WhatsApp
-              </a>
             </div>
           </motion.div>
         )}
