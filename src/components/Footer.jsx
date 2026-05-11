@@ -28,6 +28,7 @@ export default function Footer() {
               <Link to="/services" className="block text-sm text-textsecondary hover:text-accent transition-colors">Court Filing</Link>
               <Link to="/services" className="block text-sm text-textsecondary hover:text-accent transition-colors">Find Lawyers</Link>
               <Link to="/services#calculator" className="block text-sm text-textsecondary hover:text-accent transition-colors">Price Calculator</Link>
+              <Link to="/track" className="block text-sm text-textsecondary hover:text-accent transition-colors">Track Request</Link>
               <Link to="/about" className="block text-sm text-textsecondary hover:text-accent transition-colors">About Us</Link>
             </div>
           </div>

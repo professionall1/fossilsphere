@@ -4,8 +4,8 @@ import Footer from './components/Footer'
 import WhatsAppButton from './components/WhatsAppButton'
 import Home from './pages/Home'
 import Services from './pages/Services'
+import Track from './pages/Track'
 import About from './pages/About'
-import Contact from './pages/Contact'
 
 export default function App() {
   return (
@@ -15,8 +15,8 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/track" element={<Track />} />
           <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
         </Routes>
       </main>
       <Footer />

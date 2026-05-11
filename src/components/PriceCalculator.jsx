@@ -3,8 +3,8 @@ import { Search, X, ArrowRight, Calculator } from 'lucide-react'
 import { motion } from 'framer-motion'
 import legalDraftTypes from '../data/legalDraftTypes'
 
-const PRICE_PER_PAGE = 149
-const FILING_PRICE = 1999
+const PRICE_PER_PAGE = 199
+const FILING_PRICE = 2499
 
 export default function PriceCalculator() {
   const [query, setQuery] = useState('')
@@ -110,8 +110,8 @@ export default function PriceCalculator() {
         <label className="text-sm font-semibold text-textprimary mb-2.5 block">2. Choose Service</label>
         <div className="grid grid-cols-3 gap-2">
           {[
-            { value: 'drafting', label: 'Drafting', sub: '₹149/pg' },
-            { value: 'filing', label: 'Filing', sub: '₹1,999' },
+            { value: 'drafting', label: 'Drafting', sub: '₹199/pg' },
+            { value: 'filing', label: 'Filing', sub: '₹2,499' },
             { value: 'both', label: 'Both', sub: 'Best Value' },
           ].map(opt => (
             <button

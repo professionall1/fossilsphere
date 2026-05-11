@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FileText, Users, FolderOpen, ShieldCheck, Lock, MessageCircle, IndianRupee, Star, Award, Briefcase, ArrowRight, CheckCircle } from 'lucide-react'
+import { FileText, Users, FolderOpen, ArrowRight, CheckCircle, Clock, MessageCircle } from 'lucide-react'
 
 function AnimatedNumber({ target, suffix = '+', duration = 2000 }) {
   const [count, setCount] = useState(0)
@@ -61,23 +61,18 @@ export default function Home() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 w-full">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <motion.div initial="hidden" animate="visible" variants={fadeUp}>
-              <div className="inline-flex items-center gap-2 bg-accent/5 border border-accent/10 rounded-full px-4 py-1.5 mb-6">
-                <Star className="w-4 h-4 text-gold fill-gold" />
-                <span className="text-textsecondary text-xs font-medium">Trusted by 500+ clients across India</span>
-              </div>
-
-              <h1 className="font-heading font-semibold text-3xl sm:text-4xl lg:text-5xl text-primary leading-[1.2] mb-5">
-                Drafting, Filing &<br />Legal Help —<br />
-                <span className="text-accent">Made Simple</span>
+              <h1 className="font-heading font-bold text-4xl sm:text-5xl lg:text-6xl text-primary leading-[1.1] mb-5">
+                Drafting, Filing,<br />Numbering &<br />
+                <span className="text-accent">Legal Help</span>
               </h1>
 
               <p className="text-textsecondary text-base mb-7 max-w-md leading-relaxed">
-                Get expert lawyers to draft your legal documents, file petitions, and handle your cases — all starting at just ₹149.
+                Get expert lawyers to draft your legal documents, file petitions, and handle your cases — fast, affordable, and trusted.
               </p>
 
               <div className="flex flex-wrap gap-4 text-sm text-textsecondary">
-                <span className="flex items-center gap-1.5"><CheckCircle className="w-4 h-4 text-green-500" /> Verified Lawyers</span>
-                <span className="flex items-center gap-1.5"><CheckCircle className="w-4 h-4 text-green-500" /> 24hr Delivery</span>
+                <span className="flex items-center gap-1.5"><CheckCircle className="w-4 h-4 text-green-500" /> 300+ Professional Lawyers</span>
+                <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-green-500" /> On Time Delivery</span>
                 <span className="flex items-center gap-1.5"><CheckCircle className="w-4 h-4 text-green-500" /> 100% Confidential</span>
               </div>
             </motion.div>
@@ -109,8 +104,8 @@ export default function Home() {
                 <label className="text-textsecondary text-xs mb-2 block font-medium">What do you need?</label>
                 <div className="flex flex-col gap-2.5">
                   {[
-                    { label: 'Drafting', desc: '₹149/page' },
-                    { label: 'Filing', desc: '₹1,999 flat' },
+                    { label: 'Drafting', desc: '₹199/page' },
+                    { label: 'Filing', desc: '₹2,499 flat' },
                     { label: 'Drafting & Filing', desc: 'Best Value — Save More!' },
                   ].map(s => (
                     <label
@@ -150,64 +145,60 @@ export default function Home() {
 
       {/* Stats */}
       <section className="py-16 bg-white border-y border-gray-100">
-        <div className="max-w-5xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-3 gap-10 text-center">
+        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 text-center">
           {[
-            { num: 150, suffix: '+', label: 'Five-Star Reviews', icon: Star },
-            { num: 15, suffix: '+', label: 'Years of Expertise', icon: Award },
-            { num: 500, suffix: '+', label: 'Cases Handled', icon: Briefcase },
+            { num: 300, suffix: '+', label: 'Professional Lawyers' },
+            { num: 800, suffix: '+', label: 'Successful Drafts' },
+            { num: 1000, suffix: '+', label: 'Cases Handled' },
+            { num: 24, suffix: 'hr', label: 'On Time Delivery' },
+            { num: 199, suffix: '', label: '₹ Per Page Drafting' },
+            { num: 2499, suffix: '', label: '₹ For Filing' },
           ].map((s, i) => (
             <motion.div
               key={s.label}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
+              transition={{ delay: i * 0.08 }}
             >
-              <s.icon className="w-6 h-6 text-gold mx-auto mb-2" />
-              <p className="text-accent font-heading font-semibold text-4xl sm:text-5xl">
+              <p className="text-accent font-heading font-bold text-2xl sm:text-3xl">
                 <AnimatedNumber target={s.num} suffix={s.suffix} />
               </p>
-              <p className="text-textsecondary text-sm mt-2">{s.label}</p>
+              <p className="text-textsecondary text-xs mt-1">{s.label}</p>
             </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Services */}
-      <section className="py-20 sm:py-24 bg-bglight">
+      {/* What We Offer */}
+      <section className="py-20 bg-bglight">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-14">
             <span className="text-accent text-sm font-semibold uppercase tracking-wider">What We Offer</span>
-            <h2 className="font-heading font-semibold text-3xl sm:text-4xl text-primary mt-2 mb-4">
-              Complete Legal Solutions
+            <h2 className="font-heading font-semibold text-3xl sm:text-4xl text-primary mt-2">
+              Our Core Services
             </h2>
-            <p className="text-textsecondary max-w-xl mx-auto">
-              From drafting complex petitions to filing in any court across India — we handle it all with precision and speed.
-            </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+          <div className="grid md:grid-cols-3 gap-8">
             {[
               {
                 icon: FileText,
                 title: 'Legal Drafting',
-                desc: 'Expert drafting of all court petitions, agreements, deeds, and legal notices. 150+ document types covered.',
-                price: 'From ₹149/page',
-                features: ['Court Petitions', 'Agreements & Deeds', 'Legal Notices', 'Affidavits']
-              },
-              {
-                icon: Users,
-                title: 'Find Expert Lawyers',
-                desc: 'Get matched with verified specialists for your exact case type — civil, criminal, family, corporate, and more.',
-                price: 'Free Consultation',
-                features: ['Verified Advocates', 'Case-Specific Match', 'Pan-India Network', 'Direct Communication']
+                desc: 'Expert drafting of court petitions, agreements, deeds, notices, and 150+ document types by verified advocates.',
+                img: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=400&h=250&fit=crop'
               },
               {
                 icon: FolderOpen,
-                title: 'Court Filing',
-                desc: 'Hassle-free filing of petitions and documents in any court. We handle the paperwork, you focus on your case.',
-                price: '₹1,999 flat',
-                features: ['Any Court in India', 'Document Verification', 'Filing Confirmation', 'Status Tracking']
+                title: 'Court Filings',
+                desc: 'Complete filing assistance in any court across India — District, High Court, Consumer Forum, NCLT, and more.',
+                img: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=400&h=250&fit=crop'
+              },
+              {
+                icon: Users,
+                title: 'Law Expertise',
+                desc: 'Get matched with specialist lawyers for civil, criminal, family, corporate, property, and constitutional matters.',
+                img: 'https://images.unsplash.com/photo-1521791055366-0d553872125f?w=400&h=250&fit=crop'
               },
             ].map((card, i) => (
               <motion.div
@@ -217,111 +208,23 @@ export default function Home() {
                 viewport={{ once: true }}
                 custom={i}
                 variants={fadeUp}
-                className="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm hover:shadow-lg hover:border-accent/20 hover:-translate-y-1 transition-all duration-300 group"
+                className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
               >
-                <div className="w-12 h-12 bg-accent/8 rounded-xl flex items-center justify-center mb-5 group-hover:bg-accent/12 transition-colors">
-                  <card.icon className="w-6 h-6 text-accent" />
+                <div className="h-48 overflow-hidden">
+                  <img src={card.img} alt={card.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 </div>
-                <h3 className="font-heading font-semibold text-xl text-primary mb-2">{card.title}</h3>
-                <p className="text-textsecondary text-sm leading-relaxed mb-4">{card.desc}</p>
-
-                <ul className="space-y-2 mb-5">
-                  {card.features.map(f => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-textprimary">
-                      <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                  <span className="text-accent font-bold text-sm">{card.price}</span>
+                <div className="p-6">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-9 h-9 bg-accent/10 rounded-lg flex items-center justify-center">
+                      <card.icon className="w-5 h-5 text-accent" />
+                    </div>
+                    <h3 className="font-heading font-semibold text-lg text-primary">{card.title}</h3>
+                  </div>
+                  <p className="text-textsecondary text-sm leading-relaxed mb-4">{card.desc}</p>
                   <Link to="/services" className="flex items-center gap-1 text-accent text-sm font-medium hover:gap-2 transition-all">
-                    Get Started <ArrowRight className="w-4 h-4" />
+                    Learn More <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Teaser */}
-      <section className="py-20 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
-            <span className="text-accent text-sm font-semibold uppercase tracking-wider">Pricing</span>
-            <h2 className="font-heading font-semibold text-3xl sm:text-4xl text-primary mt-2 mb-4">
-              Simple & Transparent
-            </h2>
-            <p className="text-textsecondary max-w-md mx-auto">No hidden fees. No surprises. Pay only for what you need.</p>
-          </motion.div>
-
-          <div className="grid sm:grid-cols-2 gap-6 mb-10">
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} custom={0} variants={fadeUp}
-              className="bg-bglight rounded-2xl p-8 text-center border border-gray-100 hover:border-accent/20 transition-colors">
-              <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-6 h-6 text-accent" />
-              </div>
-              <p className="text-textsecondary text-sm mb-2 font-medium">Legal Drafting</p>
-              <p className="font-heading font-bold text-4xl text-primary">₹149<span className="text-lg font-normal text-textsecondary">/page</span></p>
-              <p className="text-textsecondary text-xs mt-2">All document types • Expert lawyers</p>
-            </motion.div>
-
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} custom={1} variants={fadeUp}
-              className="bg-bglight rounded-2xl p-8 text-center border border-gray-100 hover:border-accent/20 transition-colors">
-              <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FolderOpen className="w-6 h-6 text-accent" />
-              </div>
-              <p className="text-textsecondary text-sm mb-2 font-medium">Court Filing</p>
-              <p className="font-heading font-bold text-4xl text-primary">₹1,999<span className="text-lg font-normal text-textsecondary"> flat</span></p>
-              <p className="text-textsecondary text-xs mt-2">Any court • Complete assistance</p>
-            </motion.div>
-          </div>
-
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
-            className="text-center bg-accent/5 rounded-2xl p-8 border border-accent/10">
-            <p className="text-highlight font-heading font-semibold text-lg mb-2">🎉 Drafting & Filing Together — Best Value!</p>
-            <p className="text-textsecondary text-sm mb-5">Combine both services and save. Get your documents drafted AND filed seamlessly.</p>
-            <Link to="/services#calculator" className="inline-flex items-center gap-2 px-7 py-3.5 bg-accent text-white rounded-xl font-bold hover:bg-accent/90 transition-colors shadow-lg shadow-accent/15">
-              Calculate Your Price <ArrowRight className="w-4 h-4" />
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Trust */}
-      <section className="py-20 sm:py-24 bg-bglight">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-14">
-            <span className="text-accent text-sm font-semibold uppercase tracking-wider">Why Choose Us</span>
-            <h2 className="font-heading font-semibold text-3xl sm:text-4xl text-primary mt-2 mb-4">
-              Why Professionall?
-            </h2>
-            <p className="text-textsecondary max-w-lg mx-auto">We combine legal expertise with technology to deliver fast, reliable, and affordable legal services.</p>
-          </motion.div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { icon: ShieldCheck, title: 'Verified Lawyers', desc: 'Every advocate is vetted with 5+ years of experience in their practice area' },
-              { icon: Lock, title: 'Secure & Confidential', desc: 'Your documents and data are encrypted. We never share your information' },
-              { icon: MessageCircle, title: 'WhatsApp Support', desc: 'Get instant updates and communicate directly with your assigned lawyer' },
-              { icon: IndianRupee, title: 'Affordable Pricing', desc: 'Premium legal services at prices that won\'t break the bank. No hidden charges' },
-            ].map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                custom={i}
-                variants={fadeUp}
-                className="text-center p-6 rounded-2xl bg-white border border-gray-100 hover:shadow-md transition-all duration-300"
-              >
-                <div className="w-14 h-14 bg-accent/8 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <item.icon className="w-7 h-7 text-accent" />
-                </div>
-                <h4 className="font-heading font-semibold text-primary text-lg mb-2">{item.title}</h4>
-                <p className="text-textsecondary text-sm leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -336,7 +239,7 @@ export default function Home() {
               Ready to Get Started?
             </h2>
             <p className="text-textsecondary mb-8 max-w-md mx-auto">
-              Join 500+ satisfied clients. Get your legal work done by experts — fast and affordable.
+              Join 1000+ satisfied clients. Get your legal work done by experts — fast and affordable.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/services" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-accent text-white font-bold rounded-xl hover:bg-accent/90 transition-colors shadow-lg shadow-accent/15">
