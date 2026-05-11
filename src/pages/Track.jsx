@@ -34,16 +34,16 @@ export default function Track() {
   }
 
   return (
-    <div className="pt-16">
+    <div className="pt-14 sm:pt-16">
       {/* Header */}
-      <section className="hero-gradient relative overflow-hidden py-20 border-b border-gray-100">
+      <section className="hero-gradient relative overflow-hidden py-14 sm:py-20 border-b border-gray-100">
         <div className="absolute inset-0 hero-gradient-overlay" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>
             <div className="w-16 h-16 bg-accent/10 border border-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
               <Package className="w-8 h-8 text-accent" />
             </div>
-            <h1 className="font-bold text-4xl sm:text-5xl text-primary mb-3">
+            <h1 className="font-bold text-2xl sm:text-4xl md:text-5xl text-primary mb-3">
               Track Your Request
             </h1>
             <p className="text-textsecondary max-w-md mx-auto">
@@ -54,7 +54,7 @@ export default function Track() {
       </section>
 
       {/* Tracking */}
-      <section className="py-16 bg-bglight">
+      <section className="py-10 sm:py-16 bg-bglight">
         <div className="max-w-lg mx-auto px-4">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
             <h3 className="font-bold text-xl text-primary mb-1">Enter Tracking ID</h3>

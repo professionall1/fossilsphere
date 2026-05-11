@@ -25,13 +25,13 @@ export default function Services() {
   }
 
   return (
-    <div className="pt-16">
+    <div className="pt-14 sm:pt-16">
       {/* Header */}
-      <section className="hero-gradient relative overflow-hidden py-16 border-b border-gray-100">
+      <section className="hero-gradient relative overflow-hidden py-10 sm:py-16 border-b border-gray-100">
         <div className="absolute inset-0 hero-gradient-overlay" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>
-            <h1 className="font-bold text-4xl sm:text-5xl text-primary mb-3">
+            <h1 className="font-bold text-2xl sm:text-4xl md:text-5xl text-primary mb-3">
               Our <span className="text-accent">Services</span>
             </h1>
             <p className="text-textsecondary max-w-lg mx-auto">
@@ -42,7 +42,7 @@ export default function Services() {
       </section>
 
       {/* Calculator FIRST */}
-      <section className="py-16 bg-white" id="calculator-section">
+      <section className="py-10 sm:py-16 bg-white" id="calculator-section">
         <div className="max-w-7xl mx-auto px-4">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-10">
             <span className="text-accent text-sm font-semibold uppercase tracking-wider">Pricing Tool</span>
@@ -54,14 +54,14 @@ export default function Services() {
       </section>
 
       {/* Service Cards */}
-      <section className="py-16 bg-bglight">
+      <section className="py-10 sm:py-16 bg-bglight">
         <div className="max-w-7xl mx-auto px-4">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-8 sm:mb-12">
             <span className="text-accent text-sm font-semibold uppercase tracking-wider">Services</span>
-            <h2 className="font-bold text-3xl text-primary mt-2">Drafting, Filing, Numbering & Lawyer Matching</h2>
+            <h2 className="font-bold text-2xl sm:text-3xl text-primary mt-2">Drafting, Filing, Numbering & Lawyer Matching</h2>
           </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
               {
                 icon: FileText, title: 'Legal Drafting', price: '₹199/page',
@@ -111,14 +111,14 @@ export default function Services() {
       </section>
 
       {/* How It Works */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-8 sm:mb-12">
             <span className="text-accent text-sm font-semibold uppercase tracking-wider">Process</span>
-            <h2 className="font-bold text-3xl text-primary mt-2">How It Works</h2>
+            <h2 className="font-bold text-2xl sm:text-3xl text-primary mt-2">How It Works</h2>
           </motion.div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             {[
               { step: '01', title: 'Submit a Request & Get Quote', img: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=300&h=200&fit=crop', desc: 'Share your requirement and receive an instant quote' },
               { step: '02', title: 'We Draft & File', img: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=300&h=200&fit=crop', desc: 'Our expert lawyers draft and file your documents' },
@@ -144,7 +144,7 @@ export default function Services() {
       </section>
 
       {/* Contact Form */}
-      <section className="py-16 bg-bglight border-t border-gray-100">
+      <section className="py-10 sm:py-16 bg-bglight border-t border-gray-100">
         <div className="max-w-md mx-auto px-4">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
             <div className="text-center mb-8">

@@ -63,23 +63,23 @@ export default function Home() {
   return (
     <>
       {/* Hero */}
-      <section className="relative min-h-screen flex items-center overflow-hidden hero-gradient">
+      <section className="relative min-h-[100dvh] flex items-center overflow-hidden hero-gradient">
         <div className="absolute inset-0 hero-gradient-overlay" />
         <div className="absolute top-20 right-10 w-72 h-72 bg-accent/5 rounded-full blur-3xl" />
         <div className="absolute bottom-20 left-10 w-96 h-96 bg-highlight/3 rounded-full blur-3xl" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 w-full">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 w-full">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <motion.div initial="hidden" animate="visible" variants={fadeUp}>
-              <h1 className="font-bold text-4xl sm:text-5xl lg:text-6xl text-primary leading-[1.1] mb-5">
+              <h1 className="font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-primary leading-[1.1] mb-4 sm:mb-5">
                 Drafting, Filing, Numbering and Legal Help
               </h1>
 
-              <p className="text-textsecondary text-base mb-7 max-w-md leading-relaxed">
+              <p className="text-textsecondary text-sm sm:text-base mb-6 sm:mb-7 max-w-md leading-relaxed">
                 Get expert lawyers to draft your legal documents, file petitions, and handle your cases — fast, affordable, and trusted.
               </p>
 
-              <div className="flex flex-wrap gap-4 text-sm text-textsecondary">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-textsecondary">
                 <span className="flex items-center gap-1.5"><CheckCircle className="w-4 h-4 text-green-500" /> 300+ Professional Lawyers</span>
                 <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-green-500" /> On Time Delivery</span>
                 <span className="flex items-center gap-1.5"><CheckCircle className="w-4 h-4 text-green-500" /> 100% Confidential</span>
@@ -137,7 +137,7 @@ export default function Home() {
 
       {/* Stats */}
       <section className="py-16 bg-white border-y border-gray-100">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 text-center">
+        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 sm:gap-8 text-center">
           {[
             { num: 300, suffix: '+', label: 'Professional Lawyers' },
             { num: 800, suffix: '+', label: 'Successful Drafts' },

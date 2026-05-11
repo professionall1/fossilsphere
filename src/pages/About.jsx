@@ -24,16 +24,16 @@ export default function About() {
   }
 
   return (
-    <div className="pt-16">
+    <div className="pt-14 sm:pt-16">
       {/* Header */}
-      <section className="hero-gradient relative overflow-hidden py-20 border-b border-gray-100">
+      <section className="hero-gradient relative overflow-hidden py-14 sm:py-20 border-b border-gray-100">
         <div className="absolute inset-0 hero-gradient-overlay" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>
             <div className="w-16 h-16 bg-accent/10 border border-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
               <Scale className="w-8 h-8 text-accent" />
             </div>
-            <h1 className="font-bold text-4xl sm:text-5xl text-primary mb-3">About Us</h1>
+            <h1 className="font-bold text-2xl sm:text-4xl md:text-5xl text-primary mb-3">About Us</h1>
             <p className="text-textsecondary max-w-lg mx-auto">
               India's trusted platform for legal drafting, court filing, and lawyer matching — making legal help accessible to everyone.
             </p>
@@ -42,7 +42,7 @@ export default function About() {
       </section>
 
       {/* About Content */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
             <div className="space-y-4 text-textsecondary leading-relaxed text-center">
@@ -58,7 +58,7 @@ export default function About() {
       </section>
 
       {/* Team Photos */}
-      <section className="py-12 bg-bglight">
+      <section className="py-8 sm:py-12 bg-bglight">
         <div className="max-w-5xl mx-auto px-4">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-8">
             <span className="text-accent text-sm font-semibold uppercase tracking-wider">Our Team</span>
@@ -84,9 +84,9 @@ export default function About() {
       </section>
 
       {/* How We Work */}
-      <section className="py-16 bg-white">
+      <section className="py-10 sm:py-16 bg-white">
         <div className="max-w-4xl mx-auto px-4">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-8 sm:mb-12">
             <span className="text-accent text-sm font-semibold uppercase tracking-wider">Process</span>
             <h2 className="font-bold text-3xl text-primary mt-2">How We Work</h2>
           </motion.div>
@@ -114,7 +114,7 @@ export default function About() {
       </section>
 
       {/* Contact Section */}
-      <section className="py-16 bg-bglight border-t border-gray-100">
+      <section className="py-10 sm:py-16 bg-bglight border-t border-gray-100">
         <div className="max-w-6xl mx-auto px-4 grid lg:grid-cols-5 gap-12">
           {/* Left - Info */}
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="lg:col-span-2">
