@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FileText, Users, FolderOpen, ArrowRight, CheckCircle, Clock, MessageCircle } from 'lucide-react'
+import { FileText, Users, FolderOpen, ArrowRight, CheckCircle, Clock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { submitToGoogleSheets } from '../utils/googleSheets'
+import { FORM_SERVICE_OPTIONS, PRICING } from '../data/services'
+import documentTypes from '../data/documentTypes'
 
 function AnimatedNumber({ target, suffix = '+', duration = 2000 }) {
   const [count, setCount] = useState(0)
@@ -37,6 +39,38 @@ const fadeUp = {
   visible: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.6, delay: i * 0.15 } })
 }
 
+const featuredDraftNames = [
+  'Written Statement',
+  'Draft Decree',
+  'Winding Up Petition',
+  'Title Suit',
+  'NBW Recall Petitions',
+  'Trust Deed',
+]
+
+const featuredDrafts = featuredDraftNames
+  .map(name => documentTypes.find(item => item.name === name))
+  .filter(Boolean)
+
+const trustPoints = [
+  {
+    title: 'Court-ready drafting',
+    desc: 'Drafts are structured for pleadings, petitions, affidavits, notices, agreements, and deed work.',
+  },
+  {
+    title: 'Clear service flow',
+    desc: 'Drafting, filing, numbering, and appear hearing support are separated so clients know exactly what they are paying for.',
+  },
+  {
+    title: 'Transparent updates',
+    desc: 'Every request can be tracked with status stages that match the chosen service type.',
+  },
+  {
+    title: 'Practical legal support',
+    desc: 'The experience is built for real client workflows: quote, prepare, review, file, track, and complete.',
+  },
+]
+
 export default function Home() {
   const [phone, setPhone] = useState('')
   const [services, setServices] = useState([])
@@ -65,18 +99,16 @@ export default function Home() {
       {/* Hero */}
       <section className="relative min-h-[100dvh] flex items-center overflow-hidden hero-gradient">
         <div className="absolute inset-0 hero-gradient-overlay" />
-        <div className="absolute top-20 right-10 w-72 h-72 bg-accent/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 left-10 w-96 h-96 bg-highlight/3 rounded-full blur-3xl" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 w-full">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <motion.div initial="hidden" animate="visible" variants={fadeUp}>
               <h1 className="font-bold text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-primary leading-[1.1] mb-4 sm:mb-5">
-                Drafting, Filing, Numbering and Legal Help
+                Drafting, Filing, Numbering and Appear Hearing
               </h1>
 
               <p className="text-textsecondary text-sm sm:text-base mb-6 sm:mb-7 max-w-md leading-relaxed">
-                Get expert lawyers to draft your legal documents, file petitions, and handle your cases — fast, affordable, and trusted.
+                Get expert lawyers to draft legal documents, file petitions, manage numbering, and support appear hearing requirements — affordable, precise, and trusted.
               </p>
 
               <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm text-textsecondary">
@@ -90,7 +122,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 40, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.7, delay: 0.3 }}
-              className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl border border-gray-100"
+              className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl shadow-primary/10 border border-slate-200"
             >
               <h3 className="font-bold text-primary text-xl mb-1">Get Started Now</h3>
               <p className="text-textsecondary text-sm mb-5">Tell us what you need — we'll contact you shortly</p>
@@ -102,22 +134,22 @@ export default function Home() {
                   value={phone}
                   onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                   placeholder="Phone No"
-                  className="w-full bg-gray-100 border border-gray-200 rounded-lg px-4 py-3 text-primary placeholder-gray-400 focus:outline-none focus:border-accent/50 focus:ring-1 focus:ring-accent/20 text-sm"
+                  className="w-full bg-white border border-slate-300 rounded-lg px-4 py-3 text-primary placeholder-slate-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-sm"
                 />
               </div>
 
               <div className="mb-6">
-                <label className="font-bold text-textprimary text-sm mb-2 block">Multiple choice</label>
+                <label className="font-bold text-textprimary text-sm mb-2 block">Service Needed</label>
                 <div className="flex flex-col gap-3">
-                  {['Drafting', 'Filing', 'Drafting & Filing ( SAVE MORE )'].map(s => (
-                    <label key={s} className="flex items-center gap-3 cursor-pointer">
+                  {FORM_SERVICE_OPTIONS.map(option => (
+                    <label key={option.value} className="flex items-center gap-3 cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={services.includes(s)}
-                        onChange={() => toggleService(s)}
+                        checked={services.includes(option.label)}
+                        onChange={() => toggleService(option.label)}
                         className="w-4 h-4 border-2 border-gray-400 rounded text-accent focus:ring-accent"
                       />
-                      <span className="text-sm text-textprimary">{s}</span>
+                      <span className="text-sm text-textprimary">{option.label}</span>
                     </label>
                   ))}
                 </div>
@@ -126,7 +158,7 @@ export default function Home() {
               <button
                 onClick={handleSubmit}
                 disabled={loading}
-                className="w-full py-3.5 bg-[#3b82f6] text-white font-bold rounded-lg hover:bg-[#2563eb] transition-all active:scale-[0.98] text-sm disabled:opacity-50"
+                className="w-full py-3.5 bg-accent text-white font-bold rounded-lg hover:bg-accent/90 transition-all active:scale-[0.98] text-sm disabled:opacity-50 shadow-lg shadow-accent/20"
               >
                 {loading ? 'Submitting...' : 'Submit'}
               </button>
@@ -136,15 +168,15 @@ export default function Home() {
       </section>
 
       {/* Stats */}
-      <section className="py-16 bg-white border-y border-gray-100">
+      <section className="py-16 bg-white border-y border-slate-200">
         <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6 sm:gap-8 text-center">
           {[
             { num: 300, suffix: '+', label: 'Professional Lawyers' },
             { num: 800, suffix: '+', label: 'Successful Drafts' },
             { num: 1000, suffix: '+', label: 'Cases Handled' },
-            { num: 24, suffix: 'hr', label: 'On Time Delivery' },
-            { num: 199, suffix: '', label: '₹ Per Page Drafting' },
-            { num: 2499, suffix: '', label: '₹ For Filing' },
+            { num: 98, suffix: '%', label: 'On Time Delivery' },
+            { num: PRICING.draftingPerPage, suffix: '', label: '₹ Per Page Drafting' },
+            { num: PRICING.filing, suffix: '', label: '₹ For Filing' },
           ].map((s, i) => (
             <motion.div
               key={s.label}
@@ -159,6 +191,44 @@ export default function Home() {
               <p className="text-textsecondary text-xs mt-1">{s.label}</p>
             </motion.div>
           ))}
+        </div>
+      </section>
+
+      {/* Popular Drafts */}
+      <section className="py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="max-w-2xl mb-10">
+            <span className="text-accent text-sm font-semibold uppercase tracking-wider">Popular Draft Requests</span>
+            <h2 className="font-bold text-3xl sm:text-4xl text-primary mt-2">Search, price, and request common court drafts</h2>
+            <p className="text-textsecondary mt-3 leading-relaxed">
+              Clients can choose from a structured legal draft library, including pleadings, judgment-related drafts, criminal petitions, company matters, property suits, and conveyancing documents.
+            </p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {featuredDrafts.map((draft, i) => (
+              <motion.div
+                key={draft.id}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                custom={i}
+                variants={fadeUp}
+                className="group rounded-2xl border border-slate-200 bg-gradient-to-br from-white to-bglight p-5 shadow-sm hover:shadow-xl hover:shadow-primary/10 hover:border-accent/30 transition-all"
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <p className="font-bold text-primary">{draft.displayName}</p>
+                    <p className="text-textsecondary text-sm mt-1">{draft.subCategory}</p>
+                  </div>
+                  <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
+                    <FileText className="w-4 h-4 text-accent" />
+                  </div>
+                </div>
+                <p className="text-xs text-textsecondary mt-4">{draft.category}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -186,8 +256,8 @@ export default function Home() {
               },
               {
                 icon: Users,
-                title: 'Law Expertise',
-                desc: 'Get matched with specialist lawyers for civil, criminal, family, corporate, property, and constitutional matters.',
+                title: 'Appear Hearing',
+                desc: 'Get support for court appearance requirements with clear coordination for civil, criminal, family, corporate, and property matters.',
                 img: 'https://images.unsplash.com/photo-1521791055366-0d553872125f?w=400&h=250&fit=crop'
               },
             ].map((card, i) => (
@@ -198,7 +268,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 custom={i}
                 variants={fadeUp}
-                className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group"
+                className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 group"
               >
                 <div className="h-48 overflow-hidden">
                   <img src={card.img} alt={card.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -221,13 +291,46 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Why Choose Us */}
+      <section className="py-16 bg-primary text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="grid lg:grid-cols-[0.85fr_1.15fr] gap-10 items-start">
+            <div>
+              <span className="text-gold text-sm font-semibold uppercase tracking-wider">Built for legal work</span>
+              <h2 className="font-bold text-3xl sm:text-4xl mt-2">More than a form, a complete legal-service workflow</h2>
+              <p className="text-white/75 mt-4 leading-relaxed">
+                The site now explains what clients get at each stage, shows real document categories, and gives a clearer reason to submit a request.
+              </p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              {trustPoints.map((item, i) => (
+                <motion.div
+                  key={item.title}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  custom={i}
+                  variants={fadeUp}
+                  className="rounded-2xl border border-white/10 bg-white/8 p-5 shadow-lg shadow-black/10"
+                >
+                  <CheckCircle className="w-5 h-5 text-gold mb-3" />
+                  <h3 className="font-bold">{item.title}</h3>
+                  <p className="text-white/70 text-sm mt-2 leading-relaxed">{item.desc}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* CTA Banner */}
-      <section className="py-16 bg-white border-t border-gray-100">
+      <section className="py-16 bg-white border-t border-slate-200">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
             <h2 className="font-bold text-3xl sm:text-4xl text-primary mb-4">Ready to Get Started?</h2>
             <p className="text-textsecondary mb-8 max-w-md mx-auto">
-              Join 1000+ satisfied clients. Get your legal work done by experts — fast and affordable.
+              Join 1000+ satisfied clients. Get your legal work done by experts — clear, affordable, and dependable.
             </p>
             <Link to="/services" className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-accent text-white font-bold rounded-xl hover:bg-accent/90 transition-colors shadow-lg shadow-accent/15">
               Explore Services <ArrowRight className="w-4 h-4" />

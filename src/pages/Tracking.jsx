@@ -17,7 +17,7 @@ export default function Tracking() {
     setSearched(true)
     const id = trackId.replace(/\D/g, '')
     if (id === '101') {
-      setResult({ status: 'In Progress', desc: 'Your document is being drafted by our legal team. Expected delivery within 24 hours.', icon: Clock, color: 'text-accent', bg: 'bg-accent/10' })
+      setResult({ status: 'In Progress', desc: 'Your document is being drafted by our legal team.', icon: Clock, color: 'text-accent', bg: 'bg-accent/10' })
     } else if (id === '102') {
       setResult({ status: 'Completed', desc: 'Your document has been delivered. Check your WhatsApp for the final copy.', icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50' })
     } else {
@@ -115,13 +115,13 @@ export default function Tracking() {
               className="bg-white rounded-xl p-5 border border-gray-100 text-center">
               <Clock className="w-6 h-6 text-accent mx-auto mb-2" />
               <p className="font-heading font-semibold text-primary text-sm">Avg. Delivery</p>
-              <p className="text-textsecondary text-xs mt-1">24-48 hours</p>
+              <p className="text-textsecondary text-xs mt-1">On time</p>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
               className="bg-white rounded-xl p-5 border border-gray-100 text-center">
               <MessageCircle className="w-6 h-6 text-green-500 mx-auto mb-2" />
               <p className="font-heading font-semibold text-primary text-sm">Live Support</p>
-              <p className="text-textsecondary text-xs mt-1">WhatsApp 24/7</p>
+              <p className="text-textsecondary text-xs mt-1">WhatsApp support</p>
             </motion.div>
           </div>
 

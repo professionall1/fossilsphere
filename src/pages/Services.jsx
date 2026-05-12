@@ -4,30 +4,49 @@ import { FileText, FolderOpen, Users, Hash, CheckCircle, ArrowRight } from 'luci
 import toast from 'react-hot-toast'
 import PriceCalculator from '../components/PriceCalculator'
 import { submitToGoogleSheets } from '../utils/googleSheets'
+import { FORM_SERVICE_OPTIONS, PRICING } from '../data/services'
+import documentTypes from '../data/documentTypes'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.5, delay: i * 0.1 } })
 }
 
+const serviceInclusions = [
+  'Requirement review before preparation',
+  'Document type and category mapping',
+  'Drafting or filing estimate before submission',
+  'Request status tracking after intake',
+  'Clear coordination for appear hearing requests',
+  'Responsive support for next steps',
+]
+
+const coverageCategories = Array.from(
+  documentTypes.reduce((map, item) => {
+    if (!map.has(item.category)) map.set(item.category, [])
+    map.get(item.category).push(item)
+    return map
+  }, new Map())
+).slice(0, 8)
+
 export default function Services() {
-  const [form, setForm] = useState({ phone: '', service: '' })
+  const [form, setForm] = useState({ phone: '', service: FORM_SERVICE_OPTIONS[0].label, details: '' })
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.phone) return toast.error('Please enter your phone number')
     setLoading(true)
-    await submitToGoogleSheets({ phone: form.phone, service: form.service, message: form.service })
+    await submitToGoogleSheets({ phone: form.phone, service: form.service, message: form.details || form.service })
     setLoading(false)
     toast.success('Request submitted! We will contact you soon.')
-    setForm({ phone: '', service: '' })
+    setForm({ phone: '', service: FORM_SERVICE_OPTIONS[0].label, details: '' })
   }
 
   return (
     <div className="pt-14 sm:pt-16">
       {/* Header */}
-      <section className="hero-gradient relative overflow-hidden py-10 sm:py-16 border-b border-gray-100">
+      <section className="hero-gradient relative overflow-hidden py-10 sm:py-16 border-b border-slate-200">
         <div className="absolute inset-0 hero-gradient-overlay" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>
@@ -35,7 +54,7 @@ export default function Services() {
               Our <span className="text-accent">Services</span>
             </h1>
             <p className="text-textsecondary max-w-lg mx-auto">
-              Expert legal drafting, filing, numbering & lawyer matching — all in one place.
+              Expert legal drafting, filing, numbering and appear hearing support — all in one place.
             </p>
           </motion.div>
         </div>
@@ -58,19 +77,19 @@ export default function Services() {
         <div className="max-w-7xl mx-auto px-4">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-8 sm:mb-12">
             <span className="text-accent text-sm font-semibold uppercase tracking-wider">Services</span>
-            <h2 className="font-bold text-2xl sm:text-3xl text-primary mt-2">Drafting, Filing, Numbering & Lawyer Matching</h2>
+            <h2 className="font-bold text-2xl sm:text-3xl text-primary mt-2">Drafting, Filing, Numbering & Appear Hearing</h2>
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {[
               {
-                icon: FileText, title: 'Legal Drafting', price: '₹199/page',
+                icon: FileText, title: 'Legal Drafting', price: `₹${PRICING.draftingPerPage}/page`,
                 desc: 'Professional drafting of all court petitions, agreements, deeds & notices.',
                 items: ['Court Petitions', 'Agreements', 'Property Deeds', 'Legal Notices']
               },
               {
-                icon: FolderOpen, title: 'Court Filing', price: '₹2,499 flat',
-                desc: 'Complete filing in any court across India with document verification.',
+                icon: FolderOpen, title: 'Court Filing', price: `₹${PRICING.filing.toLocaleString()} flat`,
+                desc: 'Court Filing – ₹2,999 (Excluding court fee & Intercity).',
                 items: ['District Courts', 'High Courts', 'Consumer Forums', 'Tribunals']
               },
               {
@@ -79,21 +98,21 @@ export default function Services() {
                 items: ['Page Numbering', 'Court Indexing', 'Proper Formatting', 'Certified Copies']
               },
               {
-                icon: Users, title: 'Lawyer Matching', price: 'Free Consult',
-                desc: 'Get connected with verified specialists for your specific case type.',
+                icon: Users, title: 'Appear Hearing', price: `₹${PRICING.appearHearing.toLocaleString()}/- (Intercity)`,
+                desc: 'Appear Hearing support for scheduled court requirements.',
                 items: ['Civil & Criminal', 'Family Law', 'Corporate', 'Property']
               },
             ].map((card, i) => (
               <motion.div
                 key={card.title}
                 initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i} variants={fadeUp}
-                className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-lg hover:border-accent/15 transition-all"
+                className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-primary/10 hover:border-accent/30 transition-all"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center">
                     <card.icon className="w-5 h-5 text-accent" />
                   </div>
-                  <span className="text-accent font-bold text-xs bg-accent/5 px-2.5 py-1 rounded-full">{card.price}</span>
+                  <span className="text-accent font-bold text-xs bg-accent/10 border border-accent/15 px-2.5 py-1 rounded-full">{card.price}</span>
                 </div>
                 <h3 className="font-bold text-lg text-primary mb-2">{card.title}</h3>
                 <p className="text-textsecondary text-sm mb-4 leading-relaxed">{card.desc}</p>
@@ -104,6 +123,46 @@ export default function Services() {
                     </li>
                   ))}
                 </ul>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Coverage */}
+      <section className="py-12 sm:py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-10">
+            <span className="text-accent text-sm font-semibold uppercase tracking-wider">Drafting Coverage</span>
+            <h2 className="font-bold text-2xl sm:text-3xl text-primary mt-2">Matter types covered by the document library</h2>
+            <p className="text-textsecondary max-w-2xl mx-auto mt-3">
+              The calculator search is backed by a structured list of court and non-litigation drafts, so users can discover the right document from legal categories instead of guessing.
+            </p>
+          </motion.div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {coverageCategories.map(([category, items], i) => (
+              <motion.div
+                key={category}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                custom={i}
+                variants={fadeUp}
+                className="rounded-2xl border border-slate-200 bg-gradient-to-br from-bglight to-white p-5 shadow-sm hover:shadow-xl hover:shadow-primary/10 transition-all"
+              >
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <h3 className="font-bold text-primary">{category}</h3>
+                  <span className="text-xs font-bold text-accent bg-accent/10 border border-accent/15 rounded-full px-2.5 py-1">{items.length}</span>
+                </div>
+                <div className="space-y-2">
+                  {items.slice(0, 3).map(item => (
+                    <p key={item.id} className="text-sm text-textsecondary flex gap-2">
+                      <CheckCircle className="w-3.5 h-3.5 text-green-600 shrink-0 mt-0.5" />
+                      <span>{item.displayName}</span>
+                    </p>
+                  ))}
+                </div>
               </motion.div>
             ))}
           </div>
@@ -126,7 +185,7 @@ export default function Services() {
               { step: '04', title: 'Track Progress in Real Time', img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&h=200&fit=crop', desc: 'Track your request status via our tracking system' },
             ].map((item, i) => (
               <motion.div key={item.step} initial="hidden" whileInView="visible" viewport={{ once: true }} custom={i} variants={fadeUp}
-                className="bg-bglight rounded-2xl overflow-hidden border border-gray-100">
+                className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
                 <div className="h-36 overflow-hidden">
                   <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
                 </div>
@@ -143,8 +202,30 @@ export default function Services() {
         </div>
       </section>
 
+      {/* What's Included */}
+      <section className="py-12 sm:py-16 bg-primary text-white">
+        <div className="max-w-6xl mx-auto px-4 grid lg:grid-cols-[0.9fr_1.1fr] gap-10 items-center">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
+            <span className="text-gold text-sm font-semibold uppercase tracking-wider">What Clients Get</span>
+            <h2 className="font-bold text-3xl sm:text-4xl mt-2">A clearer, more complete request experience</h2>
+            <p className="text-white/75 mt-4 leading-relaxed">
+              Each service path is designed to keep the client informed from the first quote through drafting, filing, completion, or appear hearing coordination.
+            </p>
+          </motion.div>
+
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} custom={1} variants={fadeUp} className="grid sm:grid-cols-2 gap-3">
+            {serviceInclusions.map(item => (
+              <div key={item} className="flex items-start gap-3 rounded-xl bg-white/8 border border-white/10 p-4">
+                <CheckCircle className="w-4 h-4 text-gold shrink-0 mt-0.5" />
+                <span className="text-sm text-white/85">{item}</span>
+              </div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
       {/* Contact Form */}
-      <section className="py-10 sm:py-16 bg-bglight border-t border-gray-100">
+      <section className="py-10 sm:py-16 bg-bglight border-t border-slate-200">
         <div className="max-w-md mx-auto px-4">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
             <div className="text-center mb-8">
@@ -152,7 +233,7 @@ export default function Services() {
               <p className="text-textsecondary text-sm">Submit your details and we'll get back to you.</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
+            <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-xl shadow-primary/5 space-y-4">
               <div>
                 <label className="text-sm font-bold text-textprimary mb-1.5 block">Phone Number**</label>
                 <input
@@ -160,17 +241,36 @@ export default function Services() {
                   placeholder="+91 98765 43210"
                   value={form.phone}
                   onChange={e => setForm({ ...form, phone: e.target.value })}
-                  className="w-full px-4 py-3 bg-bglight border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent/40 text-sm"
+                  className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent text-sm"
                 />
               </div>
               <div>
-                <label className="text-sm font-bold text-textprimary mb-1.5 block">Service Needed</label>
+                <label className="text-sm font-bold text-textprimary mb-2 block">Service Needed</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {FORM_SERVICE_OPTIONS.map(option => (
+                    <button
+                      type="button"
+                      key={option.value}
+                      onClick={() => setForm({ ...form, service: option.label })}
+                      className={`rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all ${
+                        form.service === option.label
+                          ? 'bg-accent text-white border-accent shadow-md shadow-accent/20'
+                          : 'bg-white text-textprimary border-slate-300 hover:border-accent/50 hover:bg-accent/5'
+                      }`}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-bold text-textprimary mb-1.5 block">Requirement Details</label>
                 <textarea
                   placeholder="Describe what you need help with..."
-                  value={form.service}
-                  onChange={e => setForm({ ...form, service: e.target.value })}
+                  value={form.details}
+                  onChange={e => setForm({ ...form, details: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-3 bg-bglight border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent/40 text-sm resize-none"
+                  className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent text-sm resize-none"
                 />
               </div>
               <button

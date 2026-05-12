@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, MessageCircle, Clock, CheckCircle, AlertCircle } from 'lucide-react'
+import { Search, MessageCircle, Clock, AlertCircle } from 'lucide-react'
 
 export default function TrackingInput() {
   const [trackId, setTrackId] = useState('')
@@ -60,7 +60,7 @@ export default function TrackingInput() {
         <MessageCircle className="w-5 h-5" /> Track via WhatsApp
       </button>
 
-      <p className="text-white/40 text-xs mt-4 text-center">For real-time updates, reload or contact us on WhatsApp</p>
+      <p className="text-white/40 text-xs mt-4 text-center">Reload the page for latest updates or contact us on WhatsApp</p>
     </motion.div>
   )
 }

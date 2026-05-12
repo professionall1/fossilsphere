@@ -1,22 +1,24 @@
+import { normalizeService, normalizeStatus } from '../data/services'
+
 /**
  * Google Sheets Integration via Apps Script Web App
  *
  * SETUP:
  * 1. Create a Google Sheet with 2 tabs:
- *    - "Requests" → Columns: Timestamp, Phone, Service, Message, Status
- *    - "Tracking" → Columns: TrackingID, Status, Message, Date
+ *    - "Requests" -> Columns: Timestamp, Phone, Service, Message, Status, TrackingID
+ *    - "Tracking" -> Columns: TrackingID, Status, Message, Date, Service
  *
- * 2. Go to Extensions → Apps Script and paste this:
+ * 2. Go to Extensions -> Apps Script and paste this:
  *
  * function doPost(e) {
  *   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Requests");
  *   var data = JSON.parse(e.postData.contents);
  *   var id = "PRO-" + (sheet.getLastRow());
- *   sheet.appendRow([data.timestamp, data.phone, data.service, data.message, "Pending", id]);
+ *   sheet.appendRow([data.timestamp, data.phone, data.service, data.message, "In Progress", id]);
  *
  *   // Also add to Tracking sheet
  *   var trackSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Tracking");
- *   trackSheet.appendRow([id, "pending", "Your request has been received", data.timestamp]);
+ *   trackSheet.appendRow([id, "in-progress", "Your request is being worked on", data.timestamp, data.service || "Drafting"]);
  *
  *   return ContentService.createTextOutput(JSON.stringify({ success: true, trackingId: id }))
  *     .setMimeType(ContentService.MimeType.JSON);
@@ -34,7 +36,8 @@
  *           id: data[i][0],
  *           status: data[i][1],
  *           message: data[i][2],
- *           date: data[i][3]
+ *           date: data[i][3],
+ *           service: data[i][4] || "Drafting"
  *         })).setMimeType(ContentService.MimeType.JSON);
  *       }
  *     }
@@ -45,7 +48,7 @@
  *     .setMimeType(ContentService.MimeType.JSON);
  * }
  *
- * 3. Deploy → New Deployment → Web App → Anyone can access
+ * 3. Deploy -> New Deployment -> Web App -> Anyone can access
  * 4. Copy URL into .env as VITE_GOOGLE_SHEETS_URL
  */
 
@@ -56,7 +59,7 @@ export async function submitToGoogleSheets(data) {
     return { success: false, message: "Sheets not configured" };
   }
   try {
-    const res = await fetch(SHEETS_URL, {
+    await fetch(SHEETS_URL, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
@@ -72,18 +75,23 @@ export async function submitToGoogleSheets(data) {
 export async function trackRequest(trackingId) {
   const SHEETS_URL = import.meta.env.VITE_GOOGLE_SHEETS_URL;
   if (!SHEETS_URL || SHEETS_URL === 'your_google_apps_script_web_app_url') {
-    // Demo fallback
     const id = trackingId.replace(/\D/g, '');
-    if (id === '101') return { status: 'in-progress', message: 'Your document is being drafted. Expected delivery within 24 hours.' };
-    if (id === '102') return { status: 'completed', message: 'Your document has been delivered.' };
-    return { status: 'not-found', message: 'Tracking ID not found. Please check and try again.' };
+    if (id === '101') return { status: 'in-progress', service: 'Drafting', message: 'Your document is being drafted.' };
+    if (id === '102') return { status: 'completed', service: 'Filing', message: 'Your filing request has been completed.' };
+    if (id === '103') return { status: 'drafting-completed', service: 'Both', message: 'Drafting is completed and filing is in progress.' };
+    if (id === '104') return { status: 'in-progress', service: 'Appear Hearing', message: 'Appear hearing support is in progress.' };
+    return { status: 'not-found', service: 'Drafting', message: 'Tracking ID not found. Please check and try again.' };
   }
   try {
     const res = await fetch(`${SHEETS_URL}?action=track&id=${encodeURIComponent(trackingId.trim())}`);
     const data = await res.json();
-    return data;
+    return {
+      ...data,
+      status: normalizeStatus(data.status),
+      service: normalizeService(data.service),
+    };
   } catch (err) {
     console.error("Track error:", err);
-    return { status: 'error', message: 'Unable to fetch status. Please try again later.' };
+    return { status: 'error', service: 'Drafting', message: 'Unable to fetch status. Please try again later.' };
   }
 }

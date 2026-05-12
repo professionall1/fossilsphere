@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Phone, Mail, MessageCircle, MapPin, Clock, ArrowRight, Send } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { submitToGoogleSheets } from '../utils/googleSheets'
+import { FORM_SERVICE_OPTIONS } from '../data/services'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -10,27 +11,27 @@ const fadeUp = {
 }
 
 export default function Contact() {
-  const [form, setForm] = useState({ name: '', phone: '', email: '', message: '' })
+  const [form, setForm] = useState({ name: '', phone: '', email: '', service: FORM_SERVICE_OPTIONS[0].label, message: '' })
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!form.phone && !form.email) return toast.error('Please provide phone or email')
     setLoading(true)
-    await submitToGoogleSheets({ ...form, service: 'Contact Inquiry' })
+    await submitToGoogleSheets({ ...form })
     setLoading(false)
     toast.success('Message sent! Redirecting to WhatsApp...')
 
     const number = import.meta.env.VITE_WHATSAPP_NUMBER || '919876543210'
-    const msg = `Hi Professionall!\nName: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email}\nMessage: ${form.message}`
+    const msg = `Hi Professionall!\nName: ${form.name}\nPhone: ${form.phone}\nEmail: ${form.email}\nService: ${form.service}\nMessage: ${form.message}`
     window.open(`https://wa.me/${number}?text=${encodeURIComponent(msg)}`, '_blank')
-    setForm({ name: '', phone: '', email: '', message: '' })
+    setForm({ name: '', phone: '', email: '', service: FORM_SERVICE_OPTIONS[0].label, message: '' })
   }
 
   return (
     <div className="pt-16">
       {/* Header */}
-      <section className="hero-gradient relative overflow-hidden py-20 border-b border-gray-100">
+      <section className="hero-gradient relative overflow-hidden py-20 border-b border-slate-200">
         <div className="absolute inset-0 hero-gradient-overlay" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>
@@ -112,7 +113,7 @@ export default function Contact() {
 
           {/* Right - Form */}
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} custom={1} variants={fadeUp} className="lg:col-span-3">
-            <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-gray-100">
+            <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl shadow-primary/5 border border-slate-200">
               <h3 className="font-heading font-semibold text-xl text-primary mb-1">Send a Message</h3>
               <p className="text-textsecondary text-sm mb-6">We'll get back to you within minutes on WhatsApp.</p>
 
@@ -124,7 +125,7 @@ export default function Contact() {
                     placeholder="Enter your full name"
                     value={form.name}
                     onChange={e => setForm({ ...form, name: e.target.value })}
-                    className="w-full px-4 py-3 bg-bglight border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent/40 text-sm"
+                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent text-sm"
                   />
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -135,7 +136,7 @@ export default function Contact() {
                       placeholder="+91 98765 43210"
                       value={form.phone}
                       onChange={e => setForm({ ...form, phone: e.target.value })}
-                      className="w-full px-4 py-3 bg-bglight border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent/40 text-sm"
+                      className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent text-sm"
                     />
                   </div>
                   <div>
@@ -145,8 +146,27 @@ export default function Contact() {
                       placeholder="you@example.com"
                       value={form.email}
                       onChange={e => setForm({ ...form, email: e.target.value })}
-                      className="w-full px-4 py-3 bg-bglight border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent/40 text-sm"
+                      className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent text-sm"
                     />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-textprimary mb-2 block">Service Needed</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {FORM_SERVICE_OPTIONS.map(option => (
+                      <button
+                        type="button"
+                        key={option.value}
+                        onClick={() => setForm({ ...form, service: option.label })}
+                        className={`rounded-xl border px-3 py-2.5 text-sm font-semibold transition-all ${
+                          form.service === option.label
+                            ? 'bg-accent text-white border-accent shadow-md shadow-accent/20'
+                            : 'bg-white text-textprimary border-slate-300 hover:border-accent/50 hover:bg-accent/5'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
                   </div>
                 </div>
                 <div>
@@ -156,7 +176,7 @@ export default function Contact() {
                     value={form.message}
                     onChange={e => setForm({ ...form, message: e.target.value })}
                     rows={5}
-                    className="w-full px-4 py-3 bg-bglight border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/15 focus:border-accent/40 text-sm resize-none"
+                    className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent text-sm resize-none"
                   />
                 </div>
                 <button

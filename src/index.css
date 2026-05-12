@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #1E293B;
-  --color-accent: #6366F1;
-  --color-highlight: #EC4899;
-  --color-gold: #F59E0B;
-  --color-bglight: #F8FAFC;
-  --color-textprimary: #1E293B;
-  --color-textsecondary: #64748B;
+  --color-primary: #14213D;
+  --color-accent: #0F766E;
+  --color-highlight: #B7791F;
+  --color-gold: #B7791F;
+  --color-bglight: #F5F7FA;
+  --color-textprimary: #172033;
+  --color-textsecondary: #475569;
   --color-card: #FFFFFF;
 }
 
@@ -21,7 +21,7 @@ html {
 
 body {
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #1E293B;
+  color: #172033;
   margin: 0;
   background: #FFFFFF;
   -webkit-font-smoothing: antialiased;
@@ -33,18 +33,16 @@ h1, h2, h3, h4, h5, h6,
   font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Light hero gradient */
 .hero-gradient {
-  background: linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 50%, #F0F9FF 100%);
+  background: linear-gradient(135deg, #F8FAFC 0%, #EDF7F5 48%, #FFF8E8 100%);
 }
 
 .hero-gradient-overlay {
-  background: radial-gradient(ellipse at top right, rgba(99, 102, 241, 0.06), transparent 60%),
-              radial-gradient(ellipse at bottom left, rgba(236, 72, 153, 0.04), transparent 60%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.18));
 }
 
 .dark-gradient {
-  background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+  background: linear-gradient(135deg, #EEF4F4 0%, #F8FAFC 100%);
 }
 
 /* Glass card */
@@ -52,8 +50,23 @@ h1, h2, h3, h4, h5, h6,
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  box-shadow: 0 16px 40px rgba(20, 33, 61, 0.08);
+}
+
+input,
+textarea,
+select {
+  color: #172033;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #64748B;
+}
+
+::selection {
+  background: rgba(15, 118, 110, 0.18);
 }
 
 ::-webkit-scrollbar {
@@ -63,7 +76,7 @@ h1, h2, h3, h4, h5, h6,
   background: #f1f5f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #6366F1;
+  background: #0F766E;
   border-radius: 3px;
 }
 

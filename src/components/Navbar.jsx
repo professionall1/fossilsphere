@@ -21,8 +21,6 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  useEffect(() => setOpen(false), [location])
-
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
@@ -76,9 +74,10 @@ export default function Navbar() {
             <div className="px-6 py-8 flex flex-col gap-2 h-full">
               {links.map(l => (
                 <Link
-                  key={l.to}
-                  to={l.to}
-                  className={`px-5 py-4 rounded-xl text-lg font-medium transition-colors ${
+                key={l.to}
+                to={l.to}
+                onClick={() => setOpen(false)}
+                className={`px-5 py-4 rounded-xl text-lg font-medium transition-colors ${
                     location.pathname === l.to
                       ? 'text-accent bg-accent/5'
                       : 'text-primary hover:bg-gray-50'
