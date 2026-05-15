@@ -12,7 +12,7 @@ export const SERVICE_CONFIG = {
     detail: "₹199/page",
     description: "Professional legal drafting charged per page.",
     requiresPages: true,
-    trackingSteps: ["In Progress", "Completed"],
+    trackingSteps: ["Drafting", "Completed"],
   },
   filing: {
     value: "filing",
@@ -22,7 +22,7 @@ export const SERVICE_CONFIG = {
     description: "Excluding court fee & Intercity",
     requiresPages: false,
     fixedPrice: PRICING.filing,
-    trackingSteps: ["In Progress", "Completed"],
+    trackingSteps: ["Filing", "Numbering", "Completed"],
   },
   both: {
     value: "both",
@@ -31,7 +31,7 @@ export const SERVICE_CONFIG = {
     detail: "Drafting + Filing",
     description: "Drafting pages + filing, excluding court fee & Intercity",
     requiresPages: true,
-    trackingSteps: ["In Progress", "Drafting Completed", "Filing Completed"],
+    trackingSteps: ["Drafting", "Filing", "Numbering", "Completed"],
   },
   appearHearing: {
     value: "appearHearing",
@@ -41,7 +41,7 @@ export const SERVICE_CONFIG = {
     description: "Intercity",
     requiresPages: false,
     fixedPrice: PRICING.appearHearing,
-    trackingSteps: ["In Progress", "Completed"],
+    trackingSteps: ["Appear Hearing", "Completed"],
   },
 };
 
@@ -72,6 +72,10 @@ export function normalizeStatus(value = "") {
 
   if (!raw) return "in-progress";
   if (compact === "inprogess" || compact === "inprogress" || raw === "pending") return "in-progress";
+  if (compact === "drafting") return "drafting";
+  if (compact === "filing") return "filing";
+  if (compact === "numbering") return "numbering";
+  if (compact === "appearhearing" || compact === "appear") return "appear-hearing";
   if (compact === "draftingcompleted" || compact === "draftcompleted") return "drafting-completed";
   if (compact === "filingcompleted" || compact === "filecompleted") return "filing-completed";
   if (compact === "completed" || compact === "complete" || compact === "done") return "completed";

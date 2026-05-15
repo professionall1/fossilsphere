@@ -7,6 +7,7 @@ import Home from './pages/Home'
 import Services from './pages/Services'
 import Track from './pages/Track'
 import About from './pages/About'
+import Admin from './pages/Admin'
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/services" element={<Services />} />
           <Route path="/track" element={<Track />} />
           <Route path="/about" element={<About />} />
+          <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>
       <Footer />

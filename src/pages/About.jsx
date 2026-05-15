@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Scale, Phone, Mail, MapPin, Clock, ArrowRight, CheckCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { submitToGoogleSheets } from '../utils/googleSheets'
+import { submitHomeLead } from '../utils/googleSheets'
 import { FORM_SERVICE_OPTIONS } from '../data/services'
 
 const fadeUp = {
@@ -25,7 +25,7 @@ export default function About() {
     e.preventDefault()
     if (!form.phone) return toast.error('Please enter your phone number')
     setLoading(true)
-    await submitToGoogleSheets({ phone: form.phone, service: form.service, message: form.message })
+    await submitHomeLead({ phone: form.phone, service: form.service, message: form.message })
     setLoading(false)
     toast.success('Message sent! We will contact you soon.')
     setForm({ phone: '', service: FORM_SERVICE_OPTIONS[0].label, message: '' })

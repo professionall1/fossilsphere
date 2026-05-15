@@ -1,40 +1,25 @@
 import { useState, useMemo } from 'react'
-import { Search, X, ArrowRight, Calculator } from 'lucide-react'
+import { Search, X, ArrowRight, Calculator, Phone } from 'lucide-react'
 import { motion } from 'framer-motion'
 import toast from 'react-hot-toast'
-import {
-  getCaseTypeOptions,
-  getCategoryOptions,
-  getDocumentDropdownLabel,
-  getDocumentTypeById,
-  getDraftTypeOptions,
-  searchDocumentTypes,
-} from '../data/documentTypes'
+import { getDocumentDropdownLabel, searchDocumentTypes } from '../data/documentTypes'
 import { SERVICE_OPTIONS, PRICING, calculateServiceTotal, getServiceConfig } from '../data/services'
-import { submitToGoogleSheets } from '../utils/googleSheets'
+import { submitPricingRequest } from '../utils/googleSheets'
 
 export default function PriceCalculator() {
   const [query, setQuery] = useState('')
   const [selected, setSelected] = useState(null)
   const [serviceType, setServiceType] = useState('drafting')
   const [pages, setPages] = useState(1)
+  const [phone, setPhone] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
-  const [caseType, setCaseType] = useState('Civil')
-  const [categoryType, setCategoryType] = useState('Suit Drafts')
-  const [draftTypeId, setDraftTypeId] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [trackingId, setTrackingId] = useState(null)
 
   const filtered = useMemo(() => {
     if (!query.trim()) return []
     return searchDocumentTypes(query)
   }, [query])
-
-  const caseTypeOptions = useMemo(() => getCaseTypeOptions(), [])
-  const categoryOptions = useMemo(() => getCategoryOptions(caseType), [caseType])
-  const showCategorySelect = categoryOptions.length > 1 || categoryOptions[0]?.value !== caseType
-  const draftTypeOptions = useMemo(
-    () => getDraftTypeOptions(caseType, categoryType),
-    [caseType, categoryType]
-  )
 
   const activeService = getServiceConfig(serviceType)
 
@@ -44,48 +29,34 @@ export default function PriceCalculator() {
 
   const handleSelect = (item) => {
     setSelected(item)
-    setCaseType(item.category)
-    setCategoryType(item.subCategory)
-    setDraftTypeId(item.id)
     setQuery(item.displayName)
     setShowDropdown(false)
   }
 
-  const handleCaseTypeChange = (value) => {
-    const nextCategories = getCategoryOptions(value)
-    setCaseType(value)
-    setCategoryType(nextCategories[0]?.value || '')
-    setDraftTypeId('')
-    setSelected(null)
-    setQuery('')
-    setShowDropdown(false)
-  }
-
-  const handleCategoryChange = (value) => {
-    setCategoryType(value)
-    setDraftTypeId('')
-    setSelected(null)
-    setQuery('')
-    setShowDropdown(false)
-  }
-
-  const handleDraftTypeChange = (value) => {
-    const nextDocument = getDocumentTypeById(value)
-    setDraftTypeId(value)
-    setSelected(nextDocument)
-    setQuery('')
-    setShowDropdown(false)
-  }
-
   const handleRequest = async () => {
-    const service = getServiceConfig(serviceType)
+    if (!phone || phone.length < 10) return toast.error('Please enter a valid phone number')
 
-    await submitToGoogleSheets({
-      phone: '',
-      service: service.label,
-      message: `Document: ${selected ? getDocumentDropdownLabel(selected) : 'Not selected'}. ${service.requiresPages ? `Pages: ${pages}. ` : ''}Estimated: ₹${total.toLocaleString()}`
+    setLoading(true)
+    const result = await submitPricingRequest({
+      phone: phone,
+      document: selected ? getDocumentDropdownLabel(selected) : 'Not selected',
+      service: activeService.label,
+      pages: activeService.requiresPages ? pages : 'N/A',
+      estimate: total.toLocaleString(),
     })
-    toast.success('Request submitted! We will contact you soon.')
+    setLoading(false)
+
+    if (result.trackingId) {
+      setTrackingId(result.trackingId)
+      toast.success(`Request submitted! Your Tracking ID: ${result.trackingId}`, { duration: 6000 })
+    } else {
+      toast.success('Request submitted! We will contact you soon.')
+    }
+
+    setPhone('')
+    setQuery('')
+    setSelected(null)
+    setPages(1)
   }
 
   return (
@@ -101,74 +72,26 @@ export default function PriceCalculator() {
           <Calculator className="w-5 h-5 text-accent" />
         </div>
         <div>
-          <h3 className="font-heading font-semibold text-xl text-primary">Price Calculator</h3>
-          <p className="text-textsecondary text-xs">Get an instant estimate for your legal service</p>
+          <h3 className="font-heading font-semibold text-xl text-primary">Calculate Your Cost</h3>
+          <p className="text-textsecondary text-xs">Select your document type, choose a service, and get an instant price estimate.</p>
         </div>
       </div>
 
+      {/* Quick Search */}
       <div className="mb-6 relative">
-        <label className="text-sm font-semibold text-textprimary mb-1 block">1. Select Document Type</label>
-        <p className="text-xs text-textsecondary mb-3">
-          Choose case type, category, and draft type from the client hierarchy, or search directly.
-        </p>
-
-        <div className={`grid gap-3 mb-4 ${showCategorySelect ? 'md:grid-cols-3' : 'sm:grid-cols-2'}`}>
-          <div className="min-w-0">
-            <span className="text-xs font-semibold text-textprimary mb-1.5 block">Case Type</span>
-            <select
-              value={caseType}
-              onChange={(e) => handleCaseTypeChange(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-medium text-textprimary shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-            >
-              {caseTypeOptions.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </div>
-
-          {showCategorySelect && (
-            <div className="min-w-0">
-              <span className="text-xs font-semibold text-textprimary mb-1.5 block">Category</span>
-              <select
-                value={categoryType}
-                onChange={(e) => handleCategoryChange(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-medium text-textprimary shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-              >
-                {categoryOptions.map((option) => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <div className="min-w-0">
-            <span className="text-xs font-semibold text-textprimary mb-1.5 block">Draft Type</span>
-            <select
-              value={draftTypeId}
-              onChange={(e) => handleDraftTypeChange(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-sm font-medium text-textprimary shadow-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20"
-            >
-              <option value="">Select draft type</option>
-              {draftTypeOptions.map((item) => (
-                <option key={item.id} value={item.id}>{item.displayName}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <span className="text-xs font-semibold text-textprimary mb-1.5 block">Quick Search</span>
+        <label className="text-sm font-semibold text-textprimary mb-2 block">1. Search Document Type</label>
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-textsecondary" />
           <input
             type="text"
             value={query}
-            onChange={e => { setQuery(e.target.value); setShowDropdown(true); setSelected(null); setDraftTypeId('') }}
+            onChange={e => { setQuery(e.target.value); setShowDropdown(true); setSelected(null) }}
             onFocus={() => setShowDropdown(true)}
             placeholder="Search e.g. written, nbw, trust deed, title..."
             className="w-full pl-10 pr-10 py-3.5 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent text-sm text-textprimary placeholder-slate-500 shadow-sm"
           />
           {query && (
-            <button onClick={() => { setQuery(''); setSelected(null); setDraftTypeId('') }} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-textsecondary hover:text-textprimary">
+            <button onClick={() => { setQuery(''); setSelected(null) }} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-textsecondary hover:text-textprimary">
               <X className="w-4 h-4" />
             </button>
           )}
@@ -183,7 +106,7 @@ export default function PriceCalculator() {
               >
                 <div className="min-w-0">
                   <span className="font-semibold text-textprimary">{item.displayName}</span>
-                  <span className="text-textsecondary text-xs ml-2"> ({item.subCategory})</span>
+                  <span className="text-textsecondary text-xs ml-2">({item.subCategory})</span>
                 </div>
                 <span className="text-xs px-2.5 py-1 rounded-full bg-accent/10 text-accent font-semibold shrink-0">{item.category}</span>
               </button>
@@ -199,6 +122,7 @@ export default function PriceCalculator() {
         )}
       </div>
 
+      {/* Choose Service */}
       <div className="mb-6">
         <label className="text-sm font-semibold text-textprimary mb-2.5 block">2. Choose Service</label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -221,14 +145,12 @@ export default function PriceCalculator() {
         <p className="text-xs text-textsecondary mt-2">{activeService.description}</p>
       </div>
 
+      {/* Pages */}
       {activeService.requiresPages && (
         <div className="mb-6">
           <label className="text-sm font-semibold text-textprimary mb-2 block">3. Number of Pages</label>
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setPages(Math.max(1, pages - 1))}
-              className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-lg font-bold text-textprimary hover:bg-bglight transition-colors"
-            >−</button>
+            <button onClick={() => setPages(Math.max(1, pages - 1))} className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-lg font-bold text-textprimary hover:bg-bglight transition-colors">−</button>
             <input
               type="number"
               min={1}
@@ -236,15 +158,13 @@ export default function PriceCalculator() {
               onChange={e => setPages(Math.max(1, parseInt(e.target.value) || 1))}
               className="w-20 text-center px-3 py-2.5 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent text-sm font-semibold"
             />
-            <button
-              onClick={() => setPages(pages + 1)}
-              className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-lg font-bold text-textprimary hover:bg-bglight transition-colors"
-            >+</button>
+            <button onClick={() => setPages(pages + 1)} className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-lg font-bold text-textprimary hover:bg-bglight transition-colors">+</button>
             <span className="text-sm text-textsecondary">{pages} × ₹{PRICING.draftingPerPage} = <strong className="text-textprimary">₹{(pages * PRICING.draftingPerPage).toLocaleString()}</strong></span>
           </div>
         </div>
       )}
 
+      {/* Estimated Total */}
       <div className="mb-6 p-5 bg-gradient-to-br from-bglight to-white rounded-xl border border-slate-200 shadow-inner">
         <div className="flex items-center justify-between gap-4">
           <div>
@@ -257,20 +177,40 @@ export default function PriceCalculator() {
               <p>Filing: ₹{PRICING.filing.toLocaleString()}</p>
             </div>
           )}
-          {(serviceType === 'filing' || serviceType === 'appearHearing') && (
-            <div className="text-right text-xs text-textsecondary max-w-[9rem]">
-              <p>{activeService.description}</p>
-            </div>
-          )}
         </div>
       </div>
 
+      {/* Phone Number */}
+      <div className="mb-6">
+        <label className="text-sm font-semibold text-textprimary mb-1.5 block">{activeService.requiresPages ? '4' : '3'}. Phone Number**</label>
+        <div className="relative">
+          <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-textsecondary" />
+          <input
+            type="tel"
+            value={phone}
+            onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+            placeholder="Enter your 10-digit phone number"
+            className="w-full pl-10 pr-4 py-3.5 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent text-sm text-textprimary placeholder-slate-500 shadow-sm"
+          />
+        </div>
+      </div>
+
+      {/* Submit */}
       <button
         onClick={handleRequest}
-        className="w-full py-4 bg-accent text-white font-bold rounded-xl hover:bg-accent/90 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-accent/20"
+        disabled={loading}
+        className="w-full py-4 bg-accent text-white font-bold rounded-xl hover:bg-accent/90 transition-all active:scale-[0.98] flex items-center justify-center gap-2 shadow-lg shadow-accent/20 disabled:opacity-50"
       >
-        Request This Service <ArrowRight className="w-4 h-4" />
+        {loading ? 'Submitting...' : 'Request This Service'} {!loading && <ArrowRight className="w-4 h-4" />}
       </button>
+
+      {trackingId && (
+        <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl text-center">
+          <p className="text-green-800 font-semibold text-sm">Your Tracking ID: <span className="text-lg">{trackingId}</span></p>
+          <p className="text-green-700 text-xs mt-1">Save this ID to track your request status</p>
+        </div>
+      )}
+
       <p className="text-textsecondary text-xs text-center mt-3">Submit your request and our team will contact you.</p>
     </motion.div>
   )

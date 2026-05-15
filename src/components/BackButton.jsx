@@ -5,7 +5,7 @@ export default function BackButton() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  if (location.pathname === '/') return null
+  if (location.pathname === '/' || location.pathname === '/admin') return null
 
   return (
     <button

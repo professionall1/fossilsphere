@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FileText, Users, FolderOpen, ArrowRight, CheckCircle, Clock } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { submitToGoogleSheets } from '../utils/googleSheets'
+import { submitHomeLead } from '../utils/googleSheets'
 import { FORM_SERVICE_OPTIONS, PRICING } from '../data/services'
 import documentTypes from '../data/documentTypes'
 
@@ -83,8 +83,8 @@ export default function Home() {
   const handleSubmit = async () => {
     if (!phone || phone.length < 10) return toast.error('Please enter a valid phone number')
     setLoading(true)
-    await submitToGoogleSheets({
-      phone: `+91 ${phone}`,
+    await submitHomeLead({
+      phone: phone,
       service: services.join(', ') || 'Not specified',
       message: 'Home page inquiry'
     })
@@ -252,7 +252,7 @@ export default function Home() {
                 icon: FolderOpen,
                 title: 'Court Filings',
                 desc: 'Complete filing assistance in any court across India — District, High Court, Consumer Forum, NCLT, and more.',
-                img: 'https://images.unsplash.com/photo-1505664194779-8beaceb93744?w=400&h=250&fit=crop'
+                img: 'https://www.telangana.gov.in/wp-content/uploads/2023/07/High-Court.jpg'
               },
               {
                 icon: Users,

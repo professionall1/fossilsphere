@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { FileText, FolderOpen, Users, Hash, CheckCircle, ArrowRight } from 'lucide-react'
 import toast from 'react-hot-toast'
 import PriceCalculator from '../components/PriceCalculator'
-import { submitToGoogleSheets } from '../utils/googleSheets'
+import { submitHomeLead } from '../utils/googleSheets'
 import { FORM_SERVICE_OPTIONS, PRICING } from '../data/services'
 import documentTypes from '../data/documentTypes'
 
@@ -37,7 +37,7 @@ export default function Services() {
     e.preventDefault()
     if (!form.phone) return toast.error('Please enter your phone number')
     setLoading(true)
-    await submitToGoogleSheets({ phone: form.phone, service: form.service, message: form.details || form.service })
+    await submitHomeLead({ phone: form.phone, service: form.service, message: form.details || form.service })
     setLoading(false)
     toast.success('Request submitted! We will contact you soon.')
     setForm({ phone: '', service: FORM_SERVICE_OPTIONS[0].label, details: '' })

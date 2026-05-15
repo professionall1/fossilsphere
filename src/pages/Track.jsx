@@ -10,6 +10,20 @@ const fadeUp = {
 }
 
 const statusMeta = {
+  'drafting': {
+    status: 'Drafting',
+    desc: 'Your document is being drafted by our legal team.',
+    icon: Clock,
+    color: 'text-accent',
+    bg: 'bg-accent/10',
+  },
+  'appear-hearing': {
+    status: 'Appear Hearing',
+    desc: 'Your appear hearing request is in progress.',
+    icon: Clock,
+    color: 'text-accent',
+    bg: 'bg-accent/10',
+  },
   'in-progress': {
     status: 'In Progress',
     desc: 'Your request is being worked on by our legal team.',
@@ -17,9 +31,23 @@ const statusMeta = {
     color: 'text-accent',
     bg: 'bg-accent/10',
   },
+  'filing': {
+    status: 'Filing',
+    desc: 'Your document is being filed in court.',
+    icon: Clock,
+    color: 'text-accent',
+    bg: 'bg-accent/10',
+  },
+  'numbering': {
+    status: 'Numbering',
+    desc: 'Your case is in the numbering stage.',
+    icon: Clock,
+    color: 'text-accent',
+    bg: 'bg-accent/10',
+  },
   'drafting-completed': {
     status: 'Drafting Completed',
-    desc: 'Your draft is complete and the filing stage is next.',
+    desc: 'Your draft is complete.',
     icon: CheckCircle2,
     color: 'text-green-700',
     bg: 'bg-green-50',
@@ -55,31 +83,41 @@ const statusMeta = {
 }
 
 function getStepIndex(status, steps) {
-  if (steps.length === 3) {
-    if (status === 'completed' || status === 'filing-completed') return 2
-    if (status === 'drafting-completed') return 1
-    return 0
+  const statusToStep = {
+    'drafting': 'Drafting',
+    'in-progress': steps[0],
+    'filing': 'Filing',
+    'numbering': 'Numbering',
+    'appear-hearing': 'Appear Hearing',
+    'completed': 'Completed',
   }
+  const stepLabel = statusToStep[status] || steps[0]
+  const idx = steps.findIndex(s => s === stepLabel)
+  return idx >= 0 ? idx : 0
+}
 
-  return ['completed', 'drafting-completed', 'filing-completed'].includes(status) ? 1 : 0
+function isStepComplete(status, stepIndex, steps) {
+  const currentIdx = getStepIndex(status, steps)
+  if (status === 'completed') return true
+  return stepIndex < currentIdx
 }
 
 function TrackingBar({ service, status }) {
   const steps = getTrackingSteps(service)
   const currentIndex = getStepIndex(status, steps)
-  const hasTerminalProgress = ['completed', 'drafting-completed', 'filing-completed'].includes(status)
+  const isCompleted = status === 'completed'
 
   return (
     <div className="mt-5">
       <div className="flex items-start justify-between gap-2">
         {steps.map((step, index) => {
-          const complete = hasTerminalProgress && index <= currentIndex
-          const active = !complete && index === currentIndex
+          const complete = isCompleted || index < currentIndex
+          const active = !isCompleted && index === currentIndex
 
           return (
             <div key={step} className="flex-1 text-center relative">
               {index > 0 && (
-                <div className={`absolute top-4 right-1/2 w-full h-0.5 -z-0 ${complete || active ? 'bg-accent' : 'bg-slate-200'}`} />
+                <div className={`absolute top-4 right-1/2 w-full h-0.5 -z-0 ${complete || active ? 'bg-green-500' : 'bg-slate-200'}`} />
               )}
               <div className={`relative z-10 w-8 h-8 rounded-full mx-auto flex items-center justify-center border ${
                 complete
@@ -90,7 +128,7 @@ function TrackingBar({ service, status }) {
               }`}>
                 {complete ? <CheckCircle2 className="w-4 h-4" /> : <CircleDot className="w-4 h-4" />}
               </div>
-              <p className={`text-xs font-semibold mt-2 ${complete || active ? 'text-textprimary' : 'text-textsecondary'}`}>{step}</p>
+              <p className={`text-xs font-semibold mt-2 ${complete ? 'text-green-600' : active ? 'text-accent' : 'text-textsecondary'}`}>{step}</p>
             </div>
           )
         })}
@@ -179,7 +217,7 @@ export default function Track() {
                 className={`p-5 rounded-xl ${result.bg} border border-slate-200`}
               >
                 <div className="flex items-start gap-4">
-                  <div className={`w-10 h-10 rounded-full bg-white/70 flex items-center justify-center shrink-0`}>
+                  <div className="w-10 h-10 rounded-full bg-white/70 flex items-center justify-center shrink-0">
                     <result.icon className={`w-5 h-5 ${result.color}`} />
                   </div>
                   <div className="min-w-0">
