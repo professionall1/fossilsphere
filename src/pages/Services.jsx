@@ -89,7 +89,7 @@ export default function Services() {
               },
               {
                 icon: FolderOpen, title: 'Court Filing', price: `₹${PRICING.filing.toLocaleString()} flat`,
-                desc: 'Court Filing – ₹2,999 (Excluding court fee & Intercity).',
+                desc: 'Court Filing – ₹2,999 (Intercity & excluding court fee).',
                 items: ['District Courts', 'High Courts', 'Consumer Forums', 'Tribunals']
               },
               {
