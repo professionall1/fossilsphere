@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import { Lock, RefreshCw, Search, CheckCircle2, Clock, FileText, Phone, Eye, EyeOff, LogOut } from 'lucide-react'
 import toast from 'react-hot-toast'
 
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin'
 
 const STATUS_OPTIONS = ['drafting', 'filing', 'numbering', 'completed']
 
@@ -15,7 +15,7 @@ const SERVICE_STATUS_OPTIONS = {
 }
 
 function getStatusOptionsForService(service) {
-  const key = (service || '').toLowerCase().replace(/\s+/g, '')
+  const key = String(service || '').toLowerCase().replace(/\s+/g, '')
   if (key.includes('both') || (key.includes('draft') && key.includes('fil'))) return SERVICE_STATUS_OPTIONS.both
   if (key.includes('appear') || key.includes('hearing')) return SERVICE_STATUS_OPTIONS.appearHearing
   if (key.includes('filing') || key.includes('file')) return SERVICE_STATUS_OPTIONS.filing
@@ -33,11 +33,12 @@ const STATUS_COLORS = {
 }
 
 function PhoneLink({ phone }) {
-  const num = (phone || '').replace(/[^0-9+]/g, '')
-  const dialNum = num.startsWith('+') ? num : num.length === 10 ? `+91${num}` : `+91${num}`
+  const phoneStr = String(phone || '')
+  const num = phoneStr.replace(/[^0-9+]/g, '')
+  const dialNum = num.startsWith('+') ? num : `+91${num}`
   return (
     <a href={`tel:${dialNum}`} className="font-semibold text-accent underline">
-      {phone}
+      {phoneStr}
     </a>
   )
 }
