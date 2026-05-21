@@ -168,7 +168,7 @@ export default function Track() {
 
   return (
     <div className="pt-14 sm:pt-16">
-      <section className="hero-gradient relative overflow-hidden py-14 sm:py-20 border-b border-slate-200">
+      <section className="hero-gradient relative overflow-hidden py-8 sm:py-12 border-b border-slate-200">
         <div className="absolute inset-0 hero-gradient-overlay" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>
@@ -185,11 +185,11 @@ export default function Track() {
         </div>
       </section>
 
-      <section className="py-10 sm:py-16 bg-bglight">
+      <section className="py-6 sm:py-10 bg-bglight">
         <div className="max-w-lg mx-auto px-4">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl shadow-primary/5 border border-slate-200">
             <h3 className="font-bold text-xl text-primary mb-1">Enter Tracking ID</h3>
-            <p className="text-textsecondary text-sm mb-5">Your tracking ID was shared after submission (e.g. PRO-101)</p>
+            <p className="text-textsecondary text-sm mb-5">Your tracking ID was shared after submission (e.g. 12345678)</p>
 
             <div className="flex gap-2 mb-6">
               <input
@@ -197,7 +197,7 @@ export default function Track() {
                 value={trackId}
                 onChange={e => setTrackId(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleTrack()}
-                placeholder="PRO-101"
+                placeholder="12345678"
                 className="flex-1 px-4 py-3 bg-white border border-slate-300 rounded-xl text-textprimary placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent text-sm font-medium"
               />
               <button

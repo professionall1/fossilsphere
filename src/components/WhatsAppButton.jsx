@@ -2,8 +2,7 @@ import { motion } from 'framer-motion'
 import { MessageCircle } from 'lucide-react'
 
 export default function WhatsAppButton() {
-  const number = import.meta.env.VITE_WHATSAPP_NUMBER || '919876543210'
-  const url = `https://wa.me/${number}?text=${encodeURIComponent('Hi Professionall, I need legal help!')}`
+  const url = `https://wa.me/918247853179?text=${encodeURIComponent('Hi Professionall, I need legal help!')}`
 
   return (
     <motion.a

@@ -1,7 +1,7 @@
 import { normalizeService, normalizeStatus } from '../data/services'
 
 function generateTrackingId() {
-  return 'PRO-' + Date.now().toString().slice(-6)
+  return Math.floor(10000000 + Math.random() * 90000000).toString()
 }
 
 async function sendEmailNotification(data) {

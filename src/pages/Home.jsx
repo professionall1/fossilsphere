@@ -252,7 +252,7 @@ export default function Home() {
                 icon: FolderOpen,
                 title: 'Court Filings',
                 desc: 'Complete filing assistance in any court across India — District, High Court, Consumer Forum, NCLT, and more.',
-                img: 'https://www.telangana.gov.in/wp-content/uploads/2023/07/High-Court.jpg'
+                img: '/highcourt.jpeg'
               },
               {
                 icon: Users,

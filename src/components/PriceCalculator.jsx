@@ -148,7 +148,7 @@ export default function PriceCalculator() {
       {/* Pages */}
       {activeService.requiresPages && (
         <div className="mb-6">
-          <label className="text-sm font-semibold text-textprimary mb-2 block">3. Number of Pages</label>
+          <label className="text-sm font-semibold text-textprimary mb-2 block">3. Number of Estimated Pages</label>
           <div className="flex flex-wrap items-center gap-3">
             <button onClick={() => setPages(Math.max(1, pages - 1))} className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-lg font-bold text-textprimary hover:bg-bglight transition-colors">−</button>
             <input

@@ -51,7 +51,7 @@ export default function Services() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 text-center">
           <motion.div initial="hidden" animate="visible" variants={fadeUp}>
             <h1 className="font-bold text-2xl sm:text-4xl md:text-5xl text-primary mb-3">
-              Our <span className="text-accent">Services</span>
+              <span className="text-accent">Pricing</span> & Services
             </h1>
             <p className="text-textsecondary max-w-lg mx-auto">
               Expert legal drafting, filing, numbering and appear hearing support — all in one place.

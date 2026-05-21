@@ -93,11 +93,16 @@ export default function About() {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center">
             <h2 className="font-bold text-2xl text-primary">Our Team</h2>
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-              {[0, 1, 2].map((slot) => (
-                <div key={slot} className="aspect-[4/5] rounded-2xl border border-dashed border-slate-300 bg-white/70 shadow-sm" />
-              ))}
+              <div className="aspect-[4/5] rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <img src="/team1.jpeg" alt="Team member 1" className="w-full h-full object-cover" />
+              </div>
+              <div className="aspect-[4/5] rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <img src="/team2.jpeg" alt="Team member 2" className="w-full h-full object-cover" />
+              </div>
+              <div className="aspect-[4/5] rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <img src="/team3.jpeg" alt="Team member 3" className="w-full h-full object-cover" />
+              </div>
             </div>
-            <p className="text-textsecondary text-sm mt-4">Photos will be added after the client shares final team images.</p>
           </motion.div>
         </div>
       </section>
@@ -141,22 +146,22 @@ export default function About() {
             <p className="text-textsecondary text-sm mb-8">We'll get back to you within a few hours.</p>
 
             <div className="space-y-5">
-              <a href="tel:+919876543210" className="flex items-start gap-4">
+              <a href="tel:+918247853179" className="flex items-start gap-4">
                 <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center shrink-0">
                   <Phone className="w-5 h-5 text-accent" />
                 </div>
                 <div>
                   <p className="font-medium text-primary text-sm">Phone</p>
-                  <p className="text-textsecondary text-sm">+91 98765 43210</p>
+                  <p className="text-textsecondary text-sm">+91 82478 53179</p>
                 </div>
               </a>
-              <a href="mailto:hello@professionall.in" className="flex items-start gap-4">
+              <a href="mailto:professionall.india@gmail.com" className="flex items-start gap-4">
                 <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center shrink-0">
                   <Mail className="w-5 h-5 text-accent" />
                 </div>
                 <div>
                   <p className="font-medium text-primary text-sm">Email</p>
-                  <p className="text-textsecondary text-sm">hello@professionall.in</p>
+                  <p className="text-textsecondary text-sm">professionall.india@gmail.com</p>
                 </div>
               </a>
               <div className="flex items-start gap-4">
@@ -165,7 +170,7 @@ export default function About() {
                 </div>
                 <div>
                   <p className="font-medium text-primary text-sm">Hours</p>
-                  <p className="text-textsecondary text-sm">Mon–Sat: 9 AM – 8 PM IST</p>
+                  <p className="text-textsecondary text-sm">24/7 Available</p>
                 </div>
               </div>
               <div className="flex items-start gap-4">
