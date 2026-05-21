@@ -128,12 +128,12 @@ export default function Home() {
               <p className="text-textsecondary text-sm mb-5">Tell us what you need — we'll contact you shortly</p>
 
               <div className="mb-4">
-                <label className="font-bold text-textprimary text-sm mb-1.5 block">Phone No**</label>
+                <label className="font-bold text-textprimary text-sm mb-1.5 block">Phone Number**</label>
                 <input
                   type="tel"
                   value={phone}
                   onChange={e => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                  placeholder="Phone No"
+                  placeholder="Phone Number"
                   className="w-full bg-white border border-slate-300 rounded-lg px-4 py-3 text-primary placeholder-slate-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 text-sm"
                 />
               </div>

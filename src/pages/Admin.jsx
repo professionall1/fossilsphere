@@ -1,7 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Lock, RefreshCw, Search, CheckCircle2, Clock, FileText, Phone, Eye, EyeOff, LogOut } from 'lucide-react'
+import { Eye, EyeOff, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
+import AdminTabs from '../components/admin/AdminTabs'
+import HeaderActions from '../components/admin/HeaderActions'
+import RequestsTable from '../components/admin/RequestsTable'
+import SearchFilterBar from '../components/admin/SearchFilterBar'
+import StatsCards from '../components/admin/StatsCards'
 
 const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'admin'
 
@@ -23,24 +28,12 @@ function getStatusOptionsForService(service) {
   return STATUS_OPTIONS
 }
 
-const STATUS_COLORS = {
-  drafting: 'bg-blue-100 text-blue-700',
-  filing: 'bg-yellow-100 text-yellow-700',
-  numbering: 'bg-purple-100 text-purple-700',
-  completed: 'bg-green-100 text-green-700',
-  'in-progress': 'bg-blue-100 text-blue-700',
-  'appear-hearing': 'bg-orange-100 text-orange-700',
+function csvEscape(value) {
+  return `"${String(value || '').replace(/"/g, '""')}"`
 }
 
-function PhoneLink({ phone }) {
-  const phoneStr = String(phone || '')
-  const num = phoneStr.replace(/[^0-9+]/g, '')
-  const dialNum = num.startsWith('+') ? num : `+91${num}`
-  return (
-    <a href={`tel:${dialNum}`} className="font-semibold text-accent underline">
-      {phoneStr}
-    </a>
-  )
+function createIndexedRows(rows) {
+  return rows.map((row, rowIndex) => ({ row, rowIndex }))
 }
 
 export default function Admin() {
@@ -55,9 +48,11 @@ export default function Admin() {
   const [trackingData, setTrackingData] = useState([])
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [filterStatus, setFilterStatus] = useState('all')
+  const [dateRange, setDateRange] = useState('all')
 
-  const handleLogin = (e) => {
-    e.preventDefault()
+  const handleLogin = (event) => {
+    event.preventDefault()
     if (password === ADMIN_PASSWORD) {
       setAuthenticated(true)
       localStorage.setItem('admin_auth', 'true')
@@ -67,7 +62,7 @@ export default function Admin() {
     }
   }
 
-  const fetchSheetData = async (sheetUrl, sheetName) => {
+  const fetchSheetData = useCallback(async (sheetUrl, sheetName) => {
     try {
       const res = await fetch(`${sheetUrl}?action=getAll&sheet=${sheetName}`)
       const data = await res.json()
@@ -76,27 +71,31 @@ export default function Admin() {
       console.error(`Error fetching ${sheetName}:`, err)
       return []
     }
-  }
+  }, [])
 
-  const loadData = async () => {
+  const loadData = useCallback(async (showToast = false) => {
     setLoading(true)
     const pricingUrl = import.meta.env.VITE_GOOGLE_SHEETS_URL_PRICING
     const homeUrl = import.meta.env.VITE_GOOGLE_SHEETS_URL_HOME
 
-    if (pricingUrl && pricingUrl !== 'your_pricing_sheet_apps_script_url') {
-      const requests = await fetchSheetData(pricingUrl, 'Requests')
-      const tracking = await fetchSheetData(pricingUrl, 'Tracking')
-      setPricingData(requests)
-      setTrackingData(tracking)
-    }
+    try {
+      if (pricingUrl && pricingUrl !== 'your_pricing_sheet_apps_script_url') {
+        const requests = await fetchSheetData(pricingUrl, 'Requests')
+        const tracking = await fetchSheetData(pricingUrl, 'Tracking')
+        setPricingData(requests)
+        setTrackingData(tracking)
+      }
 
-    if (homeUrl && homeUrl !== 'your_home_sheet_apps_script_url') {
-      const leads = await fetchSheetData(homeUrl, 'Sheet1')
-      setHomeData(leads)
-    }
+      if (homeUrl && homeUrl !== 'your_home_sheet_apps_script_url') {
+        const leads = await fetchSheetData(homeUrl, 'Sheet1')
+        setHomeData(leads)
+      }
 
-    setLoading(false)
-  }
+      if (showToast) toast.success('Dashboard refreshed')
+    } finally {
+      setLoading(false)
+    }
+  }, [fetchSheetData])
 
   const updateContacted = async (sheet, rowIndex, value) => {
     if (sheet === 'home') {
@@ -110,7 +109,7 @@ export default function Admin() {
     try {
       fetch(`${url}?action=updateCell&sheet=${sheetName}&row=${rowIndex + 2}&col=${col}&value=${encodeURIComponent(value)}`)
       toast.success(`Marked as ${value === 'Yes' ? 'Contacted' : 'Not Contacted'}`)
-    } catch (err) {
+    } catch {
       toast.error('Failed to update')
     }
   }
@@ -127,7 +126,7 @@ export default function Admin() {
     try {
       fetch(`${url}?action=updateCell&sheet=${sheetName}&row=${rowIndex + 2}&col=${col}&value=${encodeURIComponent(value)}`)
       toast.success('Notes saved')
-    } catch (err) {
+    } catch {
       toast.error('Failed to save notes')
     }
   }
@@ -137,263 +136,191 @@ export default function Admin() {
     const pricingUrl = import.meta.env.VITE_GOOGLE_SHEETS_URL_PRICING
     try {
       fetch(`${pricingUrl}?action=updateStatus&id=${encodeURIComponent(trackingId)}&status=${encodeURIComponent(newStatus)}`)
-      toast.success(`Status → "${newStatus}" for ${trackingId}`)
-    } catch (err) {
+      toast.success(`Status updated to "${newStatus}" for ${trackingId}`)
+    } catch {
       toast.error('Failed to update status')
     }
   }
 
-  useEffect(() => {
-    if (authenticated) loadData()
-  }, [authenticated])
+  const isInDateRange = (timestamp) => {
+    if (dateRange === 'all') return true
+    const date = new Date(timestamp)
+    const now = new Date()
+    if (dateRange === 'today') return date.toDateString() === now.toDateString()
+    if (dateRange === 'week') {
+      const week = new Date(now - 7 * 86400000)
+      return date >= week
+    }
+    if (dateRange === 'month') {
+      const month = new Date(now.getFullYear(), now.getMonth(), 1)
+      return date >= month
+    }
+    return true
+  }
 
-  const filteredPricing = pricingData.filter(row => JSON.stringify(row).toLowerCase().includes(searchQuery.toLowerCase()))
-  const filteredHome = homeData.filter(row => JSON.stringify(row).toLowerCase().includes(searchQuery.toLowerCase()))
-  const filteredTracking = trackingData.filter(row => JSON.stringify(row).toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredPricing = createIndexedRows(pricingData)
+    .filter(({ row }) => JSON.stringify(row).toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter(({ row }) => filterStatus === 'all' ? true : filterStatus === 'not-contacted' ? row[8] !== 'Yes' : true)
+    .filter(({ row }) => isInDateRange(row[0]))
+    .sort((a, b) => new Date(b.row[0] || 0) - new Date(a.row[0] || 0))
+
+  const filteredHome = createIndexedRows(homeData)
+    .filter(({ row }) => JSON.stringify(row).toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter(({ row }) => filterStatus === 'all' ? true : filterStatus === 'not-contacted' ? row[4] !== 'Yes' : true)
+    .filter(({ row }) => isInDateRange(row[0]))
+    .sort((a, b) => new Date(b.row[0] || 0) - new Date(a.row[0] || 0))
+
+  const filteredTracking = createIndexedRows(trackingData)
+    .filter(({ row }) => JSON.stringify(row).toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter(({ row }) => filterStatus === 'all' ? true : filterStatus === 'in-progress' ? row[1] !== 'completed' : true)
+    .filter(({ row }) => isInDateRange(row[3]))
+    .sort((a, b) => new Date(b.row[3] || 0) - new Date(a.row[3] || 0))
+
+  const exportCSV = () => {
+    let csv = ''
+    if (activeTab === 'pricing') {
+      csv = 'Timestamp,Phone,Document,Service,Pages,Estimate,Status,TrackingID,Contacted,Notes\n'
+      filteredPricing.forEach(({ row }) => { csv += row.map(csvEscape).join(',') + '\n' })
+    } else if (activeTab === 'home') {
+      csv = 'Timestamp,Phone,Service,Message,Contacted,Notes\n'
+      filteredHome.forEach(({ row }) => { csv += row.map(csvEscape).join(',') + '\n' })
+    } else {
+      csv = 'TrackingID,Status,Message,Date,Service\n'
+      filteredTracking.forEach(({ row }) => { csv += row.map(csvEscape).join(',') + '\n' })
+    }
+    const blob = new Blob([csv], { type: 'text/csv' })
+    const url = URL.createObjectURL(blob)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = `professionall-${activeTab}-${new Date().toISOString().split('T')[0]}.csv`
+    anchor.click()
+    URL.revokeObjectURL(url)
+    toast.success('CSV exported')
+  }
+
+  const deleteEntry = async (sheet, rowIndex) => {
+    if (!window.confirm('Are you sure you want to delete this entry?')) return
+    const url = sheet === 'home' ? import.meta.env.VITE_GOOGLE_SHEETS_URL_HOME : import.meta.env.VITE_GOOGLE_SHEETS_URL_PRICING
+    const sheetName = sheet === 'home' ? 'Sheet1' : 'Requests'
+
+    if (sheet === 'home') {
+      setHomeData(prev => prev.filter((_, i) => i !== rowIndex))
+    } else {
+      setPricingData(prev => prev.filter((_, i) => i !== rowIndex))
+    }
+
+    toast.success('Entry deleted')
+
+    try {
+      fetch(`${url}?action=deleteRow&sheet=${sheetName}&row=${rowIndex + 2}`).catch(() => {})
+    } catch {
+      // Entry is already removed from the local UI.
+    }
+  }
+
+  useEffect(() => {
+    if (!authenticated) return undefined
+    let active = true
+    Promise.resolve().then(() => {
+      if (active) loadData()
+    })
+    return () => {
+      active = false
+    }
+  }, [authenticated, loadData])
 
   if (!authenticated) {
     return (
-      <div className="pt-14 sm:pt-16 min-h-screen bg-bglight flex items-center justify-center">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white rounded-2xl p-8 shadow-xl border border-slate-200 w-full max-w-sm mx-4">
-          <div className="w-14 h-14 bg-accent/10 rounded-xl flex items-center justify-center mx-auto mb-5">
-            <Lock className="w-7 h-7 text-accent" />
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 pt-14 sm:pt-16">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/80"
+        >
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-50">
+            <Lock className="h-7 w-7 text-teal-700" />
           </div>
-          <h2 className="font-bold text-xl text-primary text-center mb-1">Admin Panel</h2>
-          <p className="text-textsecondary text-sm text-center mb-6">Enter password to access</p>
+          <h2 className="text-center text-xl font-bold text-slate-950">Admin Panel</h2>
+          <p className="mb-6 mt-1 text-center text-sm text-slate-500">Enter password to access the dashboard</p>
           <form onSubmit={handleLogin}>
             <div className="relative mb-4">
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
-                onChange={e => setPassword(e.target.value)}
+                onChange={event => setPassword(event.target.value)}
                 placeholder="Enter admin password"
-                className="w-full px-4 py-3 pr-10 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent text-sm"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 pr-10 text-sm transition-all focus:border-teal-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-teal-500/10"
               />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-textsecondary">
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-700"
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            <button type="submit" className="w-full py-3 bg-accent text-white font-bold rounded-xl hover:bg-accent/90 transition-all">Login</button>
+            <button type="submit" className="w-full rounded-xl bg-teal-700 py-3 font-bold text-white shadow-lg shadow-teal-900/10 transition-all hover:bg-teal-800 active:scale-[0.99]">
+              Login
+            </button>
           </form>
         </motion.div>
       </div>
     )
   }
 
+  const activeRows = activeTab === 'pricing' ? filteredPricing : activeTab === 'tracking' ? filteredTracking : filteredHome
+  const activeTotal = activeTab === 'pricing' ? pricingData.length : activeTab === 'tracking' ? trackingData.length : homeData.length
+  const activeLabel = activeTab === 'pricing' ? 'requests' : activeTab === 'tracking' ? 'tracking rows' : 'leads'
+  const activeFilterCount = (searchQuery.trim() ? 1 : 0) + (filterStatus !== 'all' ? 1 : 0) + (dateRange !== 'all' ? 1 : 0)
+  const tabCounts = {
+    pricing: filteredPricing.length,
+    tracking: filteredTracking.length,
+    home: filteredHome.length,
+  }
+
   return (
-    <div className="pt-14 sm:pt-16 min-h-screen bg-bglight">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 mb-4 sm:mb-6">
-          <div>
-            <h1 className="font-bold text-lg sm:text-2xl text-primary">Admin Panel</h1>
-            <p className="text-textsecondary text-xs sm:text-sm">Manage requests & tracking</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button onClick={loadData} disabled={loading} className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs sm:text-sm font-semibold hover:bg-bglight transition-colors disabled:opacity-50">
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} /> <span className="hidden sm:inline">Refresh</span>
-            </button>
-            <button onClick={() => { localStorage.removeItem('admin_auth'); setAuthenticated(false); toast.success('Logged out') }} className="flex items-center gap-1.5 px-3 py-2 bg-red-50 border border-red-200 rounded-lg text-xs sm:text-sm font-semibold text-red-600 hover:bg-red-100 transition-colors">
-              <LogOut className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Logout</span>
-            </button>
-          </div>
+    <div className="min-h-screen bg-slate-50 pt-14 sm:pt-16">
+      <div className="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        <HeaderActions
+          loading={loading}
+          loadData={() => loadData(true)}
+          exportCSV={exportCSV}
+          setAuthenticated={setAuthenticated}
+        />
+
+        <StatsCards pricingData={pricingData} homeData={homeData} trackingData={trackingData} />
+
+        <SearchFilterBar
+          activeFilterCount={activeFilterCount}
+          dateRange={dateRange}
+          filterStatus={filterStatus}
+          resultCount={activeRows.length}
+          searchQuery={searchQuery}
+          setDateRange={setDateRange}
+          setFilterStatus={setFilterStatus}
+          setSearchQuery={setSearchQuery}
+          totalCount={activeTotal}
+        />
+
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <AdminTabs activeTab={activeTab} setActiveTab={setActiveTab} counts={tabCounts} />
+          <p className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-500 shadow-sm ring-1 ring-slate-200">
+            Showing <span className="font-bold text-slate-900">{activeRows.length}</span> of <span className="font-bold text-slate-900">{activeTotal}</span> {activeLabel}
+          </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-sm text-center">
-            <p className="text-lg sm:text-2xl font-bold text-accent">{pricingData.length}</p>
-            <p className="text-[10px] sm:text-xs text-textsecondary">Requests</p>
-          </div>
-          <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-sm text-center">
-            <p className="text-lg sm:text-2xl font-bold text-accent">{homeData.length}</p>
-            <p className="text-[10px] sm:text-xs text-textsecondary">Leads</p>
-          </div>
-          <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-sm text-center">
-            <p className="text-lg sm:text-2xl font-bold text-green-600">{trackingData.filter(r => r[1] === 'completed').length}</p>
-            <p className="text-[10px] sm:text-xs text-textsecondary">Done</p>
-          </div>
-          <div className="bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-sm text-center">
-            <p className="text-lg sm:text-2xl font-bold text-yellow-600">{trackingData.filter(r => r[1] !== 'completed').length}</p>
-            <p className="text-[10px] sm:text-xs text-textsecondary">Active</p>
-          </div>
-        </div>
-
-        {/* Search */}
-        <div className="relative mb-3 sm:mb-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-textsecondary" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Search phone, ID, document..."
-            className="w-full pl-9 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent text-sm"
-          />
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-1.5 sm:gap-2 mb-3 sm:mb-4 overflow-x-auto pb-1">
-          {[
-            { id: 'pricing', label: 'Requests', icon: FileText },
-            { id: 'tracking', label: 'Tracking', icon: Clock },
-            { id: 'home', label: 'Leads', icon: Phone },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${
-                activeTab === tab.id
-                  ? 'bg-accent text-white shadow-md'
-                  : 'bg-white text-textprimary border border-slate-300 hover:bg-bglight'
-              }`}
-            >
-              <tab.icon className="w-3.5 h-3.5" /> {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Content */}
-        {loading ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-            <RefreshCw className="w-6 h-6 text-accent animate-spin mx-auto mb-3" />
-            <p className="text-textsecondary text-sm">Loading...</p>
-          </div>
-        ) : (
-          <>
-            {/* Pricing Requests */}
-            {activeTab === 'pricing' && (
-              <div className="space-y-3">
-                {filteredPricing.length === 0 ? (
-                  <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-textsecondary">No pricing requests yet</div>
-                ) : filteredPricing.map((row, i) => (
-                  <div key={i} className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-                    <div className="flex items-start justify-between gap-3 mb-3">
-                      <div>
-                        <p className="font-bold text-accent text-sm">{row[7]}</p>
-                        <p className="text-textsecondary text-[11px]">{row[0]?.split('T')[0]}</p>
-                      </div>
-                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${STATUS_COLORS[row[6]?.toLowerCase()] || 'bg-slate-100 text-slate-600'}`}>
-                        {row[6]}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-                      <div>
-                        <span className="text-textsecondary">Phone:</span>
-                        <div><PhoneLink phone={row[1]} /></div>
-                      </div>
-                      <div>
-                        <span className="text-textsecondary">Service:</span>
-                        <p className="font-semibold text-textprimary">{row[3]}</p>
-                      </div>
-                      <div>
-                        <span className="text-textsecondary">Document:</span>
-                        <p className="font-medium text-textprimary truncate">{row[2]}</p>
-                      </div>
-                      <div>
-                        <span className="text-textsecondary">Estimate:</span>
-                        <p className="font-bold text-green-700">₹{row[5]}</p>
-                      </div>
-                      <div>
-                        <span className="text-textsecondary">Pages:</span>
-                        <p className="font-medium text-textprimary">{row[4]}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
-                      <select
-                        value={row[8] || 'No'}
-                        onChange={(e) => updateContacted('pricing', i, e.target.value)}
-                        className={`px-2 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold ${row[8] === 'Yes' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}
-                      >
-                        <option value="No">❌ No</option>
-                        <option value="Yes">✅ Yes</option>
-                      </select>
-                      <input
-                        type="text"
-                        defaultValue={row[9] || ''}
-                        placeholder="Notes..."
-                        onBlur={(e) => updateNotes('pricing', i, e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
-                        className="flex-1 px-2 py-1.5 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-accent/20"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Tracking */}
-            {activeTab === 'tracking' && (
-              <div className="space-y-3">
-                {filteredTracking.length === 0 ? (
-                  <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-textsecondary">No tracking data yet</div>
-                ) : filteredTracking.map((row, i) => (
-                  <div key={i} className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-                    <div className="flex items-center justify-between gap-3 mb-2">
-                      <p className="font-bold text-accent text-sm">{row[0]}</p>
-                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${STATUS_COLORS[row[1]] || 'bg-slate-100 text-slate-600'}`}>
-                        {row[1]}
-                      </span>
-                    </div>
-                    <div className="text-xs mb-3">
-                      <p className="text-textsecondary">{row[2]}</p>
-                      <p className="font-medium text-textprimary mt-1">Service: {row[4]}</p>
-                    </div>
-                    <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
-                      <span className="text-xs text-textsecondary font-medium">Update:</span>
-                      <select
-                        value={row[1]}
-                        onChange={(e) => updateStatus(row[0], e.target.value)}
-                        className="flex-1 px-2 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-accent/20"
-                      >
-                        {getStatusOptionsForService(row[4]).map(s => (
-                          <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1).replace('-', ' ')}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Home Leads */}
-            {activeTab === 'home' && (
-              <div className="space-y-3">
-                {filteredHome.length === 0 ? (
-                  <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center text-textsecondary">No home leads yet</div>
-                ) : filteredHome.map((row, i) => (
-                  <div key={i} className="bg-white rounded-xl border border-slate-200 shadow-sm p-4">
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                      <div>
-                        <PhoneLink phone={row[1]} />
-                        <p className="text-textsecondary text-[11px] mt-0.5">{row[0]?.split('T')[0]}</p>
-                      </div>
-                      <span className="text-xs font-semibold text-textprimary bg-slate-100 px-2 py-0.5 rounded-full">{row[2]}</span>
-                    </div>
-                    {row[3] && <p className="text-xs text-textsecondary mb-3">{row[3]}</p>}
-                    <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
-                      <select
-                        value={row[4] || 'No'}
-                        onChange={(e) => updateContacted('home', i, e.target.value)}
-                        className={`px-2 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold ${row[4] === 'Yes' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}
-                      >
-                        <option value="No">❌ No</option>
-                        <option value="Yes">✅ Yes</option>
-                      </select>
-                      <input
-                        type="text"
-                        defaultValue={row[5] || ''}
-                        placeholder="Notes..."
-                        onBlur={(e) => updateNotes('home', i, e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && e.target.blur()}
-                        className="flex-1 px-2 py-1.5 border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-accent/20"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
+        <RequestsTable
+          getStatusOptionsForService={getStatusOptionsForService}
+          loading={loading}
+          onContactedChange={updateContacted}
+          onDelete={deleteEntry}
+          onNotesSave={updateNotes}
+          onStatusChange={updateStatus}
+          rows={activeRows}
+          totalCount={activeTotal}
+          type={activeTab}
+        />
       </div>
     </div>
   )

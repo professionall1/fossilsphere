@@ -1,8 +1,9 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import BackButton from './components/BackButton'
 import ScrollToTop from './components/ScrollToTop'
+import WhatsAppButton from './components/WhatsAppButton'
 import Home from './pages/Home'
 import Services from './pages/Services'
 import Track from './pages/Track'
@@ -10,6 +11,9 @@ import About from './pages/About'
 import Admin from './pages/Admin'
 
 export default function App() {
+  const location = useLocation()
+  const isAdmin = location.pathname === '/admin'
+
   return (
     <div className="min-h-screen flex flex-col">
       <ScrollToTop />
@@ -24,7 +28,9 @@ export default function App() {
           <Route path="/admin" element={<Admin />} />
         </Routes>
       </main>
-      <Footer />
+      {!isAdmin && <Footer />}
+      {isAdmin && <Footer />}
+      <WhatsAppButton />
     </div>
   )
 }
