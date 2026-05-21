@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { MessageCircle } from 'lucide-react'
 
 export default function WhatsAppButton() {
-  const url = `https://wa.me/918247853179?text=${encodeURIComponent('Hi Professionall, I need legal help!')}`
+  const url = `https://wa.me/918247853179?text=${encodeURIComponent('Hello team Professionall, I\'m looking for - ')}`
 
   return (
     <motion.a
