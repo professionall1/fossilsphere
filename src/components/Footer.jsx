@@ -82,12 +82,19 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-textsecondary">© 2025 Professionall. All rights reserved.</p>
-          <div className="flex flex-wrap justify-center gap-6 text-xs text-textsecondary">
-            <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-primary transition-colors">Refund Policy</a>
+        <div className="pt-8 border-t border-slate-200 flex flex-col items-center gap-3">
+          <a href="https://www.staffarc.in" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-textsecondary hover:text-primary transition-colors">
+            Made with <span className="text-red-500">♥</span> by
+            <img src="https://www.staffarc.in/images/Staffarc-logo.png" alt="StaffArc" className="h-5 object-contain" />
+            <span className="font-semibold text-primary">StaffArc</span>
+          </a>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
+            <p className="text-xs text-textsecondary">© 2025 Professionall. All rights reserved.</p>
+            <div className="flex flex-wrap justify-center gap-6 text-xs text-textsecondary">
+              <a href="#" className="hover:text-primary transition-colors">Privacy Policy</a>
+              <a href="#" className="hover:text-primary transition-colors">Terms of Service</a>
+              <a href="#" className="hover:text-primary transition-colors">Refund Policy</a>
+            </div>
           </div>
         </div>
       </div>
